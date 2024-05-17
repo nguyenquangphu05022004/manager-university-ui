@@ -5,21 +5,27 @@ import Util from "../../utils/Util";
 import SeasonService from '../../services/SeasonService';
 import DialogMuiComponent from '../GenericComponent/DialogMuiComponent'
 import ListMuiComponent from "../GenericComponent/ListMuiComponent";
+import Spinner from '../GenericComponent/Spinner'
 import MajorRegisterService from "../../services/MajorRegisterService";
 import PaymentService from "../../payment/PaymentService";
 function TuitionComponent() {
 
     const [majorRegisters, setMajorRegisters] = useState([])
+    const [openSpinner, setOpenSpinner] = useState(true);
     document.title = "Học phí"
 
     useEffect(() => {
         MajorRegisterService.getAllByStudentId(Util.getProfile().id)
-            .then(res => setMajorRegisters(res.data))
-            .catch((err) => console.log(err))
+            .then(res => {
+                setOpenSpinner(false)
+                setMajorRegisters(res.data)
+            })
+            .catch((err) =>{
+                setOpenSpinner(false)
+                console.log(err)
+            })
     }, [])
 
-
-    console.log(majorRegisters)
 
     const columns = [
         { id: 'season', label: 'Mùa học', align: 'center', minWidth: 100 },
@@ -94,6 +100,9 @@ function TuitionComponent() {
                 majorRegister.paymentOfPerStudentAtCurrentSeason == null || majorRegister.paymentOfPerStudentAtCurrentSeason.complete == false ? (<button className="btn btn-primary" onClick={() => { handlePayment(majorRegister.totalPrice, Util.getProfile().id + " " + majorRegister.id)}}>Thanh toán</button>) : "Thanh toán đầy đủ")
         )
     })
+    if(openSpinner) {
+        return <Spinner/>
+    }
     return (
         <div className='container'
             style={{

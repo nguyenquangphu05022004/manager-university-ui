@@ -3,17 +3,24 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import PostNotificationService from '../../services/PostNotificationService';
+import Spinner from '../GenericComponent/Spinner';
 function PostList() {
     const [posts, setPosts] = useState([])
+    const [openSpinner, setOpenSpinner] = useState(true);
 
     useEffect(() => {
         PostNotificationService.getAllPosts()
         .then(res => {
-            console.log(res.data)
+            setOpenSpinner(false);
             setPosts(res.data)
         })
-        .catch(err => console.log(err))
+        .catch(err => {
+            openSpinner(false);
+        })
     }, [])
+    if(openSpinner) {
+        return <Spinner/>
+    }
   return (
     <div className='container mb-4'>
       <ul className="list-group list-group-flush" style={{ marginTop: "20px" }}>

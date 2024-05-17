@@ -1,20 +1,25 @@
 import { React, useEffect, useState } from "react";
 import ListBoostrapComponent from '../GenericComponent/ListBoostrapComponent';
-import SeasonService from '../../services/SeasonService'
 import DialogMuiComponent from '../GenericComponent/DialogMuiComponent'
 import Util from "../../utils/Util";
 import ListMuiComponent from "../GenericComponent/ListMuiComponent";
+import Spinner from "../GenericComponent/Spinner";
 import MajorRegisterService from "../../services/MajorRegisterService";
 function ListGradeComponent() {
     const [majorRegisters, setMajorRegisters] = useState([])
+    const [openSpinner, setOpenSpinner] = useState(true)
     document.title = "Xem điểm"
 
     useEffect(() => {
         if(Util.getProfile()) {
             MajorRegisterService.getAllByStudentId(Util.getProfile().id)
             .then(res => {
+                setOpenSpinner(false)
                 setMajorRegisters(res.data);
-            }).catch(err => console.log(err))
+            }).catch(err => {
+                setOpenSpinner(false);
+                console.log(err)
+            })
         }
     }, [])
     const columns = [
@@ -72,6 +77,9 @@ function ListGradeComponent() {
             />), majorRegister.seasonGradeAverage)
         )
     })
+    if(openSpinner) {
+        return <Spinner/>
+    }
     return (
         <div className='container'
             style={{

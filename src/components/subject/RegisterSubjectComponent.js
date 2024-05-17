@@ -8,10 +8,15 @@ import MajorRegisterService from '../../services/MajorRegisterService';
 import SubjectGroupService from '../../services/SubjectGroupService';
 import Util from '../../utils/Util';
 import ListMuiComponent from '../GenericComponent/ListMuiComponent';
+import Spinner from '../GenericComponent/Spinner'
+import Process from '../GenericComponent/Process'
+
 function RegisterSubjectComponent() {
 
     const [majorRegister, setMajorRegister] = useState(null)
     const [subjectGroups, setSubjectGroups] = useState([])
+    const [openSpinner, setOpenSpinner] = useState(true);
+    const [openProcess, setOpenProcess] = useState(false);
     const major = Util.getMajor();
 
     document.title = "Đăng ký môn học"
@@ -25,16 +30,24 @@ function RegisterSubjectComponent() {
     const getMajorRegister = () => {
         MajorRegisterService.getMajoRegisterByStudentIdAndSeasonNotDisabledAndOpenRegister(Util.getProfile().id, true)
             .then(res => {
-                console.log("cai deo gi vay")
-
+                setOpenSpinner(!openSpinner)
                 setMajorRegister(res.data)
             })
-            .catch(err => console.log("error get major register"))
+            .catch(err => {
+                console.log("error get major register")
+                setOpenSpinner(!openSpinner)
+            })    
     }
     const getAllGroupSubjectBySubjectId = (subjectID) => {
+        setOpenProcess(true)
         SubjectGroupService.getAllSubjectGroupBySubjectId(subjectID).then(res => {
+            setOpenProcess(false)
             setSubjectGroups(res.data);
-        }).catch(err => alert('error get subject group by subject Id'))
+        }).catch(err => {
+            alert('error get subject group by subject Id')
+            setOpenProcess(false)
+        })
+        
     }
 
 
@@ -243,6 +256,11 @@ function RegisterSubjectComponent() {
         })
     }
     const rows2 = getRowsRegister(majorRegister != null && majorRegister.registerDTOS != null ? majorRegister.registerDTOS : []);
+    if(openSpinner) {
+        return (
+            <Spinner/>
+        )
+    }
     return (
         <div className='container'
             style={{
@@ -280,6 +298,7 @@ function RegisterSubjectComponent() {
                             width={'100%'}
                             function={(e) => getAllGroupSubjectBySubjectId(e.target.value)}
                         />
+                        {openProcess && <Process/>}
                     </div>
                     <div className="form-group mb-3">
                         <ListMuiComponent

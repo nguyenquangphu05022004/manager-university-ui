@@ -9,30 +9,40 @@ import Util from '../utils/Util'
 import Role from '../constant/Role'
 import TeacherService from '../services/TeacherService'
 import Token from '../services/Token'
-
+import Spinner from '../components/GenericComponent/Spinner';
 function FullCalendarComponent() {
 
   let tooltipInstance = null;
   const [registerOfStudents, setRegisterOfStudents] = useState([]);
   const [teacher, setTeacher] = useState(null)
+  const [openSpinner, setOpenSpinner] = useState(true);
   document.title = "Thời khóa biểu"
 
   useEffect(() => {
     if (Token.info == null ? [] : Token.info.role === Role.STUDENT) {
       RegisterSubjectService.getAllRegisterByStudentIdAndSeasonNotDisabled(Util.getProfile().id, false)
-        .then(res => setRegisterOfStudents(res.data))
-        .catch(err => alert("get failed register subject"))
+        .then(res => {
+          setOpenSpinner(false);
+          setRegisterOfStudents(res.data)
+        })
+        .catch(err => {
+          setOpenSpinner(false);
+          alert("get failed register subject")
+        })
     } 
-     
     if(Token.info == null ? [] : Token.info.role === Role.TEACHER) {
         TeacherService.findById(Util.getProfile().id)
-        .then(res => setTeacher(res.data))
-        .catch(err => alert("error when get info teacher"))
+        .then(res => {
+          setOpenSpinner(false);
+          setTeacher(res.data)
+        })
+        .catch(err => {
+          setOpenSpinner(false);
+          alert("error when get info teacher")
+        })
     }
   }, [])
 
-
-  console.log(registerOfStudents)
 
 
   const handleMouseEnter = (info) => {
@@ -113,6 +123,9 @@ function FullCalendarComponent() {
   }
   console.log(dataThoiKhoaBieu)
 
+  if(openSpinner) {
+    return <Spinner/>
+  }
 
   return (
     <div className='container' style={{ marginTop: '25px' }}>

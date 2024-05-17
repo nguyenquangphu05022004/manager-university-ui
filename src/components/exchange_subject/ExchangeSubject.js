@@ -8,10 +8,15 @@ import Util from '../../utils/Util';
 import MajorRegisterService from '../../services/MajorRegisterService';
 import TransactionService from '../../services/TransactionService';
 import ListMuiComponent from '../GenericComponent/ListMuiComponent';
+import Spinner from '../GenericComponent/Spinner';
+import Process from '../GenericComponent/Process';
+
 function ExchangeSubject() {
 
     const [registers, setRegisters] = useState([]);
     const [registerOpenedTransactions, setRegisterOpenedTransactions] = useState([])
+    const [openSpinner, setOpenSpinner] = useState(true);
+    const [openProcess, setOpenProcess]= useState(false);
     document.title = "Trao đổi môn học"
 
 
@@ -26,9 +31,13 @@ function ExchangeSubject() {
                     setMajorRegister(res.data)
                     RegisterService.getAllRegisterByStudentIdAndSeasonNotDisabled(Util.getProfile().id, false)
                     .then(res => {
+                        setOpenSpinner(false);
                         setRegisters(res.data)
                     })
-                    .catch(err => alert("error get registered"))
+                    .catch(err => {
+                        setOpenSpinner(false);
+                        alert("error get registered")
+                    })
                 }
                 )
                 .catch(err => console.log("error get majorregister"))
@@ -350,12 +359,19 @@ function ExchangeSubject() {
     }
     const rows2 = registerOpenedTransactions.length > 0 ? getRegisterOpenedTransaction(registerOpenedTransactions) : []
     const getAllListRegisterOpenedBySubjectId = (subjectId) => {
+        setOpenProcess(true);
         RegisterService.getAllRegisterOpenedTransactionBySubjectIdAndNotOfStudentId(subjectId, Util.getProfile().id)
             .then(res => {
+                setOpenProcess(false);
                 setRegisterOpenedTransactions(res.data)
             })
-            .catch(err => { alert("get register error") })
+            .catch(err => { alert("get register error"); setOpenProcess(false) })
     }
+
+    if(openSpinner) {
+        return <Spinner/>
+    }
+
     return (
         <div className='container'
             style={{
@@ -407,6 +423,7 @@ function ExchangeSubject() {
                         columns={columns2}
                         rows={rows2}
                     />
+                    {openProcess && <Process/>}
                 </div>
             ) : (<div className="form-group mb-3">
                 <input
