@@ -40,7 +40,10 @@ function ExchangeSubject() {
                     })
                 }
                 )
-                .catch(err => console.log("error get majorregister"))
+                .catch(err => {
+                    setOpenSpinner(false)
+                    console.log("error get majorregister")
+                })
             
         }
     }, [])
@@ -65,24 +68,13 @@ function ExchangeSubject() {
                 alert("Đóng giao dịch thất bại")
             })
     }
-    const removeTransaction = (targetRegister) => {
+    const removeTransaction = (targetRegister, subjectId) => {
         TransactionService.deleteByTargetRegisterAndStudentRequestId(targetRegister, Util.getProfile().id)
         .then(() => {
-            let cookie = Util.getCookie(Util.getProfile().id + "_transaction").split("_");
-            console.log("cookie: ", cookie)
-            let newValue = [];
-            for(let i = 0; i < cookie.length; i++) {
-                if(cookie[i] != (targetRegister + '')) {
-                    newValue.push(cookie[i]);
-                }
-            }
-            const dataCookie = newValue.join("_");
-            Util.setCookie(Util.getProfile().id + "_transaction", dataCookie, 3);
-            window.location.reload()
+            getAllListRegisterOpenedBySubjectId(subjectId);
         })
         .catch(err => {
-            console.log(err)
-
+            getAllListRegisterOpenedBySubjectId(subjectId)
             alert("You catch error when delete transaction")
         })
     }
@@ -178,13 +170,13 @@ function ExchangeSubject() {
                     interface={
                         <ListBoostrapComponent
                             columns={['Sinh viên', 'Mã môn', 'Tên môn', 'Tín chỉ', 'Khung giờ', 'Nhóm', 'Giảng viên', "Đồng ý"]}
-                            rows={register.listRegisterRequest != 0 ? register.listRegisterRequest.map(registerRequest => {
+                            rows={register.transactionList != 0 ? register.transactionList.map(transaction => {
                                 return (
                                     <tr>
-                                        <td>{registerRequest.studentDTO.fullName}</td>
-                                        <td>{registerRequest.subjectGroup.subject.subjectCode}</td>
-                                        <td>{registerRequest.subjectGroup.subject.subjectName}</td>
-                                        <td>{registerRequest.subjectGroup.subject.credit}</td>
+                                        <td>{transaction.registerDTO.studentDTO.fullName}</td>
+                                        <td>{transaction.registerDTO.subjectGroup.subject.subjectCode}</td>
+                                        <td>{transaction.registerDTO.subjectGroup.subject.subjectName}</td>
+                                        <td>{transaction.registerDTO.subjectGroup.subject.credit}</td>
                                         <td>
                                             <DialogMuiComponent
                                                 nameAction="Xem"
@@ -193,7 +185,7 @@ function ExchangeSubject() {
                                                 interface={
                                                     <ListBoostrapComponent
                                                         columns={['Thứ', 'Ngày bắt đầu', 'Ngày kết thúc', 'Thời gian']}
-                                                        rows={registerRequest.subjectGroup.times.length != 0 ? registerRequest.subjectGroup.times.map(time => {
+                                                        rows={transaction.registerDTO.subjectGroup.times.length != 0 ? transaction.registerDTO.subjectGroup.times.map(time => {
                                                             return (
                                                                 <tr>
                                                                     <td>{time.dayOfWeek}</td>
@@ -207,12 +199,12 @@ function ExchangeSubject() {
                                                 }
                                             />
                                         </td>
-                                        <td>{registerRequest.subjectGroup.groupName}</td>
-                                        <td>{registerRequest.subjectGroup.teacher != null ? registerRequest.subjectGroup.teacher.fullName : ''}</td>
+                                        <td>{transaction.registerDTO.subjectGroup.groupName}</td>
+                                        <td>{transaction.registerDTO.subjectGroup.teacher != null ? transaction.registerDTO.subjectGroup.teacher.fullName : ''}</td>
                                         <td>
                                             <Checkbox
                                                 sx={{ '& .MuiSvgIcon-root': { fontSize: 28 } }}
-                                                value={registerRequest.id}
+                                                value={transaction.registerDTO.id}
                                                 onClick={(e) => {
                                                     confirmTransaction(register.id, e.target.value);
                                                 }}
@@ -243,20 +235,13 @@ function ExchangeSubject() {
         )
     })
 
-    const sendRequest = (tagetRegisterId) => {
+    const sendRequest = (tagetRegisterId, subjectId) => {
         TransactionService.createTransaction(tagetRegisterId, Util.getProfile().id)
             .then(res => {
-                let cname = Util.getProfile().id + "_transaction";
-                let cookie = Util.getCookie(cname);
-                if(cookie == null) {
-                    Util.setCookie(cname, tagetRegisterId, 3);
-                } else {
-                    Util.setCookie(cname, cookie + "_" + tagetRegisterId);
-                }
-                window.location.reload()
+                getAllListRegisterOpenedBySubjectId(subjectId)
             }).catch(err => {
                 alert("Môn học bạn đổi không có trong danh sách đăng ký của bạn")
-                window.location.reload()
+                getAllListRegisterOpenedBySubjectId(subjectId)
             })
     }
 
@@ -312,9 +297,14 @@ function ExchangeSubject() {
         return { subjectCode, subjectName, credit, time, group, teacher, register, cancel }
     }
     const getRegisterOpenedTransaction = (list) => {
-        const valueCookie = Util.getCookie(Util.getProfile().id + "_transaction");
-        const value = valueCookie != null ? valueCookie.split('_') : null;
-        return registerOpenedTransactions.map(register => {
+        return list.map(register => {
+            let requestOfStudentCurrent = false;
+            for(let i = 0; i <register.transactionList.length; i++) {
+                const tran = register.transactionList[i];
+                if(tran.studentRequest === Util.getProfile().id) {
+                    requestOfStudentCurrent = true; break;
+                }
+            }
             return (
                 createDataRegisterOpenedTransaction(register.subjectGroup.subject.subjectCode, register.subjectGroup.subject.subjectName,
                     register.subjectGroup.subject.credit, (<DialogMuiComponent
@@ -340,17 +330,18 @@ function ExchangeSubject() {
                     (<Checkbox
                         sx={{ '& .MuiSvgIcon-root': { fontSize: 28 } }}
                         value={register.id}
-                        checked={value != null && value.includes(register.id + '')}
-                        disabled={value != null && value.includes(register.id + '')}
+                        checked={requestOfStudentCurrent}
+                        disabled={requestOfStudentCurrent}
                         onClick={(e) => {
-                            sendRequest(e.target.value);
+                            sendRequest(e.target.value, register.subjectGroup.subject.id);
                         }}
                     />), (<Checkbox
                         sx={{ '& .MuiSvgIcon-root': { fontSize: 28 } }}
                         value={register.id}
-                        disabled={value == null || !value.includes(register.id + '')}
+                        disabled={!requestOfStudentCurrent}
+                        checked={false}
                         onClick={(e) => {
-                            removeTransaction(e.target.value);
+                            removeTransaction(e.target.value, register.subjectGroup.subject.id);
                         }}
                     />))
     

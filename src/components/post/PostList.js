@@ -15,7 +15,7 @@ function PostList() {
             setPosts(res.data)
         })
         .catch(err => {
-            openSpinner(false);
+            setOpenSpinner(false);
         })
     }, [])
     if(openSpinner) {

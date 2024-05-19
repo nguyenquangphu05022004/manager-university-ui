@@ -10,12 +10,11 @@ import Util from '../../utils/Util';
 import ListMuiComponent from '../GenericComponent/ListMuiComponent';
 import Spinner from '../GenericComponent/Spinner'
 import Process from '../GenericComponent/Process'
-
+var openSpinner = true;
 function RegisterSubjectComponent() {
 
     const [majorRegister, setMajorRegister] = useState(null)
     const [subjectGroups, setSubjectGroups] = useState([])
-    const [openSpinner, setOpenSpinner] = useState(true);
     const [openProcess, setOpenProcess] = useState(false);
     const major = Util.getMajor();
 
@@ -30,12 +29,13 @@ function RegisterSubjectComponent() {
     const getMajorRegister = () => {
         MajorRegisterService.getMajoRegisterByStudentIdAndSeasonNotDisabledAndOpenRegister(Util.getProfile().id, true)
             .then(res => {
-                setOpenSpinner(!openSpinner)
+                openSpinner=false
                 setMajorRegister(res.data)
             })
             .catch(err => {
+                openSpinner=false
+                setMajorRegister({})
                 console.log("error get major register")
-                setOpenSpinner(!openSpinner)
             })    
     }
     const getAllGroupSubjectBySubjectId = (subjectID) => {
@@ -64,10 +64,15 @@ function RegisterSubjectComponent() {
             },
             "openTransaction": false
         }
+        setOpenProcess(true)
         RegisterSubjectService.registerSubject(requestData)
             .then(() => {
+                setOpenProcess(false)
                 getMajorRegister()
-            }).catch((err) => console.log(err))
+            }).catch((err) => {
+                setOpenProcess(false)
+                console.log(err)
+            })
     }
 
     const columns1 = [
@@ -200,10 +205,16 @@ function RegisterSubjectComponent() {
         return { subjectCode, subjectName, credit, time, group, teacher, remove }
     }
     const deleteRegister = (registerId) => {
+        setOpenProcess(true)
         RegisterSubjectService.deleteRegister(registerId)
             .then(() => {
+                setOpenProcess(false)
                 getMajorRegister();
-            }).catch(err => alert("you catch error when delete register"))
+            }).catch(err => {
+                setOpenProcess(false)
+                alert("you catch error when delete register")
+            })
+        
     }
     const getRowsRegister = (registersList) => {
         let nameCookie = Util.getProfile().id + "_subjectGroup";

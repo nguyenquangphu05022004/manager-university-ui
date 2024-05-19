@@ -22,7 +22,9 @@ function LoginComponent() {
             window.localStorage.setItem("data", JSON.stringify(response.data));
                 window.location.pathname = "/"
 
-        }).catch((err) => { console.error(err); })
+        }).catch((err) => { 
+            alert("Thông tin tài khoản hoặc mật khẩu không chính xác")
+         })
     };
 
     const handleLogin = (e) => {

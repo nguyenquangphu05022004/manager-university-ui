@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import Parse from 'html-react-parser'
 import PostNotificationService from "../../services/PostNotificationService";
 import Spinner from "../GenericComponent/Spinner";
+var spinner = true
 function PostNotificationComponent() {
     const {id} = useParams();
     const [post, setPost] = useState(null)
@@ -10,15 +11,16 @@ function PostNotificationComponent() {
     useEffect(()=> {
         PostNotificationService.getPostById(id)
         .then(res => {
-            setOpenSpinner(false)
+            spinner = false;
             setPost(res.data)
         })
         .catch(e => {
-            setOpenSpinner(false)
+            spinner = false;
+            setPost({})
         })
     }, [])
     document.title =post != null&& post.title
-    if(openSpinner) {
+    if(spinner) {
         return <Spinner/>
     }
     return (

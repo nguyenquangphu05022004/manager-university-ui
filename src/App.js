@@ -30,6 +30,7 @@ import TuitionAdminComponent from './components/tuition/TuitionAdminComponent';
 import EventRegister from './components/event/EventRegister';
 import HomePageTime from './components/time/HomePageTime';
 import InfoSubjectTeacherOfTeacher from './components/subject/InfoSubjectTeachOfTeacher';
+import InitPassword from './components/authen/InitPassword';
 
 function App() {
     return (
@@ -72,6 +73,7 @@ function App() {
                         <Route path="/admin/schedule" element={<HomePageTime/>}/>
                         <Route path="/mon-hoc-giang-day" element={<InfoSubjectTeacherOfTeacher/>}/>
                         <Route path="/nhap-diem" element={<EnterGradeForStudentComponent/>}/>
+                        <Route path="/init-password" element={<InitPassword/>}/>
 
                     </Routes>
                 </div>

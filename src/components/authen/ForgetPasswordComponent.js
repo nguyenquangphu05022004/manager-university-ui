@@ -7,19 +7,22 @@ import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import Grid from "@mui/material/Grid";
 import Link from "@mui/material/Link";
+import AuthenService from "../../services/AuthenService";
 function ForgetPasswordComponent() {
-
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const nav = useNavigate();
 
     const handleSubmit = (event) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
-        console.log({
-            email: data.get("email"),
-            password: data.get("password"),
-        });
+        const emailRequest = {
+            "recipient": data.get("email")
+        }
+        AuthenService.sendEmailForgetPassword(emailRequest)
+        .then(res => {
+            alert("Chúng tôi đã gửi thông tin về email: " + data.get("email")+ " của bạn. Vui lòng kiểm tra")
+            window.location.reload();
+        }).catch(err => {
+            alert("Email: "+ data.get("email") + ". Mà bạn gửi không hợp lệ.")
+        })
     };
 
     return (

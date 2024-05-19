@@ -19,6 +19,9 @@ function FullCalendarComponent() {
   document.title = "Thời khóa biểu"
 
   useEffect(() => {
+    if(Token.info == null ? [] : Token.info.role === Role.ADMIN) {
+      setOpenSpinner(false)
+    }
     if (Token.info == null ? [] : Token.info.role === Role.STUDENT) {
       RegisterSubjectService.getAllRegisterByStudentIdAndSeasonNotDisabled(Util.getProfile().id, false)
         .then(res => {
