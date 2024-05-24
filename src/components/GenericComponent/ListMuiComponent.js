@@ -12,8 +12,8 @@ function ListMuiComponent(params) {
     return (
         <div >
             <h3 className='mb-3 text-center'>{params.title}</h3>
-            <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-            <TableContainer sx={{ maxHeight: 500 }}>
+            <Paper sx={{ width: 'auto', overflow: 'hidden' }}>
+            <TableContainer sx={{ maxHeight: 350 }}>
                 <Table stickyHeader aria-label="sticky table">
                     <TableHead>
                         <TableRow >

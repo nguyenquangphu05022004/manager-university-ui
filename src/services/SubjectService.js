@@ -5,9 +5,6 @@ class SubjectService {
     getAllSubjects() {
         return Request.requests('get', SystemConstant.BASE_REST_API_URL, `/subjects`,'');
     }
-    getAllSubjectByRegisterOfMajor() {
-        return Request.requests('get', SystemConstant.BASE_REST_API_URL, '/subjects/re', '');
-    }
     createSubject(subject) {
         return Request.requests('post', SystemConstant.BASE_REST_API_URL, `/subjects`,subject);
     }

@@ -26,7 +26,7 @@ function ExchangeSubject() {
 
     useEffect(() => {
         if (major != null) {
-            MajorRegisterService.getMajoRegisterByStudentIdAndSeasonNotDisabledAndOpenRegister(Util.getProfile().id, true)
+        MajorRegisterService.getMajoRegisterByStudentIdAndSeasonNotDisabledAndOpenRegisterAdCoursesId(Util.getProfile().id, true, Util.getProfile().courses.id)
                 .then(res =>{ 
                     setMajorRegister(res.data)
                     RegisterService.getAllRegisterByStudentIdAndSeasonNotDisabled(Util.getProfile().id, false)
@@ -247,6 +247,8 @@ function ExchangeSubject() {
 
 
     const columns2 = [
+        { id: 'avatarStudent', label: 'Sinh viên', align: 'center', minWidth: 130 },
+
         { id: 'subjectCode', label: 'Mã môn học', align: 'center', minWidth: 130 },
         { id: 'subjectName', label: 'Tên môn học', align: 'center', minWidth: 170 },
         {
@@ -292,9 +294,9 @@ function ExchangeSubject() {
             format: (value) => value.toFixed(2),
         },
     ];
-    const createDataRegisterOpenedTransaction = (subjectCode, subjectName,
+    const createDataRegisterOpenedTransaction = (avatarStudent,subjectCode, subjectName,
         credit, time, group, teacher, register, cancel) => {
-        return { subjectCode, subjectName, credit, time, group, teacher, register, cancel }
+        return {avatarStudent, subjectCode, subjectName, credit, time, group, teacher, register, cancel }
     }
     const getRegisterOpenedTransaction = (list) => {
         return list.map(register => {
@@ -306,7 +308,13 @@ function ExchangeSubject() {
                 }
             }
             return (
-                createDataRegisterOpenedTransaction(register.subjectGroup.subject.subjectCode, register.subjectGroup.subject.subjectName,
+                createDataRegisterOpenedTransaction(
+                    <div>
+                        <img className='mb-2' width={130}
+                            src={register.studentDTO.user.avatarResponse != null ? register.studentDTO.user.avatarResponse.url : ''} />
+                        <h5>{register.studentDTO.user.username}</h5>
+                    </div>,
+                    register.subjectGroup.subject.subjectCode, register.subjectGroup.subject.subjectName,
                     register.subjectGroup.subject.credit, (<DialogMuiComponent
                         nameAction="Xem"
                         nameSomething={'Thời gian học'}

@@ -17,6 +17,10 @@ class SeasonService {
     getAllSeason() {
         return Request.requests('get', SystemConstant.BASE_REST_API_URL, `/seasons`, '');
     }
+    getListSeasonExtraByStudent(studentId) {
+        return Request.requests('get', SystemConstant.BASE_REST_API_URL, `/seasons/student/${studentId}/extra`, '');
+    }
+    
 }
 
 export default new SeasonService();

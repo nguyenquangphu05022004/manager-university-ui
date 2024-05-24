@@ -12,7 +12,7 @@ function ListGradeComponent() {
 
     useEffect(() => {
         if(Util.getProfile()) {
-            MajorRegisterService.getAllByStudentId(Util.getProfile().id)
+            MajorRegisterService.getAllByStudentIdAndCoursesId(Util.getProfile().id, Util.getProfile().courses.id)
             .then(res => {
                 setOpenSpinner(false)
                 setMajorRegisters(res.data);

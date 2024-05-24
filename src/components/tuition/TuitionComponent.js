@@ -15,7 +15,7 @@ function TuitionComponent() {
     document.title = "Học phí"
 
     useEffect(() => {
-        MajorRegisterService.getAllByStudentId(Util.getProfile().id)
+        MajorRegisterService.getAllByStudentIdAndCoursesId(Util.getProfile().id, Util.getProfile().courses.id)
             .then(res => {
                 setOpenSpinner(false)
                 setMajorRegisters(res.data)
@@ -100,6 +100,7 @@ function TuitionComponent() {
                 majorRegister.paymentOfPerStudentAtCurrentSeason == null || majorRegister.paymentOfPerStudentAtCurrentSeason.complete == false ? (<button className="btn btn-primary" onClick={() => { handlePayment(majorRegister.totalPrice, Util.getProfile().id + " " + majorRegister.id)}}>Thanh toán</button>) : "Thanh toán đầy đủ")
         )
     })
+    console.log(majorRegisters)
     if(openSpinner) {
         return <Spinner/>
     }

@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import RegisterSubjectService from '../../services/RegisterSubjectService';
 import ListBoostrapComponent from '../GenericComponent/ListBoostrapComponent';
 import SelectMuiComponent from '../GenericComponent/SelectMuiComponent';
-import { Checkbox } from "@mui/material";
 import DialogMuiComponent from '../GenericComponent/DialogMuiComponent'
 import MajorRegisterService from '../../services/MajorRegisterService';
 import SubjectGroupService from '../../services/SubjectGroupService';
@@ -10,44 +9,75 @@ import Util from '../../utils/Util';
 import ListMuiComponent from '../GenericComponent/ListMuiComponent';
 import Spinner from '../GenericComponent/Spinner'
 import Process from '../GenericComponent/Process'
-var openSpinner = true;
+import SeasonService from '../../services/SeasonService';
+import { Box, FormControl, InputLabel, Select, MenuItem, Checkbox } from "@mui/material";
+var seasonId = null;
 function RegisterSubjectComponent() {
 
     const [majorRegister, setMajorRegister] = useState(null)
     const [subjectGroups, setSubjectGroups] = useState([])
-    const [openProcess, setOpenProcess] = useState(false);
+    const [openSpinner, setOpenSpinner] = useState(true)
     const major = Util.getMajor();
+
+    const [openProcessMajorRegister, setOpenProcessMajorRegister] = useState(false)
+    const [openProcessSubject, setOpenProcessSubject]= useState(false)
+    const [seasons, setSeasons] = useState([])
 
     document.title = "Đăng ký môn học"
     useEffect(() => {
-            if(major != null) {
-                getMajorRegister();
-            }
+        SeasonService.getAllByCoursesId(Util.getProfile().courses.id)
+            .then(res => {
+                setOpenSpinner(false)
+                setSeasons(res.data)
+                if (res.data.length > 0) {
+                    seasonId = res.data[0].id
+                    getMajorRegisterBySeasonIdAndStudentId(res.data[0].id, Util.getProfile().id)
+                }
+            })
+            .catch(() => {
+                setOpenSpinner(false)
+                setSeasons([])
+            })
     }, [])
 
-
-    const getMajorRegister = () => {
-        MajorRegisterService.getMajoRegisterByStudentIdAndSeasonNotDisabledAndOpenRegister(Util.getProfile().id, true)
+    const getSeason = () => {
+        setSeasons([])
+        SeasonService.getAllByCoursesId(Util.getProfile().courses.id)
             .then(res => {
-                openSpinner=false
-                setMajorRegister(res.data)
+                setSeasons(res.data)
+                if (res.data.length > 0) {
+                    seasonId = res.data[0].id
+                    getMajorRegisterBySeasonIdAndStudentId(res.data[0].id, Util.getProfile().id)
+                }
             })
-            .catch(err => {
-                openSpinner=false
-                setMajorRegister({})
-                console.log("error get major register")
-            })    
+            .catch(() => {
+                setSeasons([])
+            })
     }
+    const getMajorRegisterBySeasonIdAndStudentId = (seaId, studentId) => {
+        setOpenProcessMajorRegister(true)
+        MajorRegisterService.getBySeasonIdAndStudentId(seaId, studentId)
+            .then(res => {
+                seasonId = seaId;
+                setOpenProcessMajorRegister(false)
+                setMajorRegister(res.data)
+            }).catch(err => {
+                setMajorRegister(null)
+                setOpenProcessMajorRegister(false)
+            })
+
+    }
+
     const getAllGroupSubjectBySubjectId = (subjectID) => {
-        setOpenProcess(true)
+        setOpenProcessSubject(true)
         SubjectGroupService.getAllSubjectGroupBySubjectId(subjectID).then(res => {
-            setOpenProcess(false)
+            setOpenProcessSubject(false)
             setSubjectGroups(res.data);
         }).catch(err => {
+            setOpenProcessSubject(false)
             alert('error get subject group by subject Id')
-            setOpenProcess(false)
         })
-        
+
     }
 
 
@@ -64,13 +94,10 @@ function RegisterSubjectComponent() {
             },
             "openTransaction": false
         }
-        setOpenProcess(true)
         RegisterSubjectService.registerSubject(requestData)
             .then(() => {
-                setOpenProcess(false)
-                getMajorRegister()
+                getMajorRegisterBySeasonIdAndStudentId(seasonId, Util.getProfile().id)
             }).catch((err) => {
-                setOpenProcess(false)
                 console.log(err)
             })
     }
@@ -205,16 +232,14 @@ function RegisterSubjectComponent() {
         return { subjectCode, subjectName, credit, time, group, teacher, remove }
     }
     const deleteRegister = (registerId) => {
-        setOpenProcess(true)
         RegisterSubjectService.deleteRegister(registerId)
             .then(() => {
-                setOpenProcess(false)
-                getMajorRegister();
+                getMajorRegisterBySeasonIdAndStudentId(seasonId, Util.getProfile().id)
+
             }).catch(err => {
-                setOpenProcess(false)
                 alert("you catch error when delete register")
             })
-        
+
     }
     const getRowsRegister = (registersList) => {
         let nameCookie = Util.getProfile().id + "_subjectGroup";
@@ -266,41 +291,96 @@ function RegisterSubjectComponent() {
             )
         })
     }
+
     const rows2 = getRowsRegister(majorRegister != null && majorRegister.registerDTOS != null ? majorRegister.registerDTOS : []);
-    if(openSpinner) {
+
+    const getSeasonExtra = () => {
+        setSeasons([])
+        SeasonService.getListSeasonExtraByStudent(Util.getProfile().id)
+            .then(res => {
+                setSeasons(res.data);
+                if (res.data.length > 0) {
+                    seasonId = res.data[0].id
+                    getMajorRegisterBySeasonIdAndStudentId(res.data[0].id, Util.getProfile().id)
+                }
+            }).catch(err => {
+                console.log(err)
+            })
+    }
+    const handleSelectSemester = (e) => {
+        const select = e.target.value;
+        if (select == 1) {
+            getSeason();
+        } else {
+            getSeasonExtra();
+        }
+    }
+    if (openSpinner) {
         return (
-            <Spinner/>
+            <Spinner />
         )
     }
+
     return (
         <div className='container'
             style={{
                 marginTop: '50px'
             }}>
-            {majorRegister != null && majorRegister.seasonDTO != null ? (
-                <div>
-                    <div className="form-group mb-3">
-                        <label className="form-label">
-                            Tên chuyên ngành:
-                        </label>
-                        <input
-                            type="text"
-                            className="form-control"
-                            value={major != null ? major.name : ''}
-                            disabled
+
+            <div>
+
+                <div className="form-group mb-3">
+                    <h4 style={{color:'red'}}>Khi đăng ký môn học lại/cải thiện của kỳ phụ cần đăng ký đúng môn đã đăng ký nguyện vọng trước đó.</h4>
+                    <label className="form-label">
+                        Tên chuyên ngành:
+                    </label>
+                    <input
+                        type="text"
+                        className="form-control"
+                        value={major != null ? major.name : ''}
+                        disabled
+                    />
+                </div>
+                <div className="form-group mb-3">
+                    <Box sx={{ minWidth: 120 }}>
+                        <FormControl sx={{ minWidth: `100%` }}>
+                            <InputLabel id="demo-simple-select-label">{"Chọn học kỳ"}</InputLabel>
+                            <Select
+                                labelId="demo-simple-select-label"
+                                id="demo-simple-select"
+                                label={"Chọn học kỳ"}
+                                onChange={handleSelectSemester}
+                                defaultValue={1}
+                            >
+                                <MenuItem
+                                    value={1}
+                                >
+                                    {'Học kỳ chính'}
+                                </MenuItem>
+                                <MenuItem
+                                    value={2}
+                                >
+                                    {'Học kỳ phụ'}
+                                </MenuItem>
+                            </Select>
+                        </FormControl>
+                    </Box>
+                </div>
+                <div className="form-group mb-3">
+                    {seasons.length > 0 ? <div>
+                        <SelectMuiComponent
+                            title="Chọn mùa học"
+                            type={"SEASON"}
+                            data={seasons}
+                            width={'100%'}
+                            defaultValue={seasons[0].id}
+                            function={(e) => getMajorRegisterBySeasonIdAndStudentId(e.target.value, Util.getProfile().id)}
                         />
+                        {openProcessMajorRegister && <Process />}
                     </div>
-                    <div className="form-group mb-3">
-                        <label className="form-label">
-                            Mùa học:
-                        </label>
-                        <input
-                            type="text"
-                            className="form-control"
-                            value={majorRegister != null && majorRegister.seasonDTO != null ? majorRegister.seasonDTO.nameSeason : ''}
-                            disabled
-                        />
-                    </div>
+                        : ''}
+                </div>
+                {majorRegister != null && majorRegister.openRegister ? (<div>
                     <div className="form-group mb-3">
                         <SelectMuiComponent
                             title="Chọn môn học"
@@ -309,7 +389,7 @@ function RegisterSubjectComponent() {
                             width={'100%'}
                             function={(e) => getAllGroupSubjectBySubjectId(e.target.value)}
                         />
-                        {openProcess && <Process/>}
+                        {openProcessSubject && <Process/>}
                     </div>
                     <div className="form-group mb-3">
                         <ListMuiComponent
@@ -318,22 +398,24 @@ function RegisterSubjectComponent() {
                             rows={rows1}
                         />
                     </div>
-                    <div className="form-group mb-3">
-                        <ListMuiComponent
-                            title="Đăng ký thành công"
-                            columns={columns2}
-                            rows={rows2}
+                </div>) :
+                    (<div className="form-group mb-3">
+                        <input
+                            type="text"
+                            className="form-control text-center"
+                            value={"Thời gian đăng ký chưa có!"}
+                            disabled
                         />
-                    </div>
+                    </div>)}
+                <div className="form-group mb-3">
+                    <ListMuiComponent
+                        title="Đăng ký thành công"
+                        columns={columns2}
+                        rows={rows2}
+                    />
                 </div>
-            ) : (<div className="form-group mb-3">
-                <input
-                    type="text"
-                    className="form-control text-center"
-                    value={"Thời gian đăng ký chưa có!"}
-                    disabled
-                />
-            </div>)}
+            </div>
+
 
         </div>
     )

@@ -10,12 +10,12 @@ class MajorRegisterService {
     getMajorRegisterByMajorIdAndSeasonNotDisabled(majorId, disabled) {
       return Request.requests('get', SystemConstant.BASE_REST_API_URL, `/majorRegisters/major/${majorId}?disabled=${disabled}`, '');
     }
-    getAllByStudentId(studentId) {
-      return Request.requests('get', SystemConstant.BASE_REST_API_URL, `/majorRegisters/list/student/${studentId}`, '');
+    getAllByStudentIdAndCoursesId(studentId, coursesId) {
+      return Request.requests('get', SystemConstant.BASE_REST_API_URL, `/majorRegisters/list/student/${studentId}/courses/${coursesId}`, '');
     }
-    getMajoRegisterByStudentIdAndSeasonNotDisabledAndOpenRegister(studentId, openRegister) {
+    getMajoRegisterByStudentIdAndSeasonNotDisabledAndOpenRegisterAdCoursesId(studentId, openRegister, coursesIdOfStudent) {
       console.log(`/majorRegisters/student/${studentId}?openRegister=${openRegister}`)
-      return Request.requests('get', SystemConstant.BASE_REST_API_URL, `/majorRegisters/student/${studentId}?openRegister=${openRegister}`, '');
+      return Request.requests('get', SystemConstant.BASE_REST_API_URL, `/majorRegisters/student/${studentId}?openRegister=${openRegister}&coursesIdOfStudent=${coursesIdOfStudent}`, '');
     }
     getAllMajorRegister() {
       return Request.requests('get', SystemConstant.BASE_REST_API_URL, `/majorRegisters`, '');
@@ -23,5 +23,13 @@ class MajorRegisterService {
     getAllByCoursesId(coursesId) {
       return Request.requests('get', SystemConstant.BASE_REST_API_URL, `/majorRegisters/courses/${coursesId}`, '');
     }
+
+    getBySeasonIdAndMajorId(seasonId, majorId) {
+      return Request.requests('get', SystemConstant.BASE_REST_API_URL, `/majorRegisters/major/${majorId}/season/${seasonId}`, '');
+    }
+    getBySeasonIdAndStudentId(seasonId, studentId) {
+      return Request.requests('get', SystemConstant.BASE_REST_API_URL, `/majorRegisters/student/${studentId}/season/${seasonId}`, '');
+    }
+    
 }
 export default new MajorRegisterService();

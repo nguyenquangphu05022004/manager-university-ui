@@ -17,6 +17,8 @@ import Token from '../services/Token';
 import AuthenService from '../services/AuthenService';
 import Util from '../utils/Util';
 import Role from '../constant/Role'
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 const teacher = [
   {
     page: "Môn học giảng dạy",
@@ -58,6 +60,14 @@ const pages = Token.info == null ? [] : Token.info.role === Role.TEACHER ? (teac
   {
     page: "Xem lịch thi",
     link: "/xem-lich-thi"
+  },
+  {
+    page: "Chương trình đào tạo",
+    link: "/chuong-trinh-dao-tao"
+  },
+  {
+    page: "Đăng ký nguyện vọng",
+    link: "/dang-ky-nguyen-vong"
   }
 ]);
 const settings = Token.info != null && Token.info.role === Role.ADMIN ? ([
@@ -103,7 +113,11 @@ function HeaderComponent() {
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
-  
+  const [alignment, setAlignment] = React.useState('web');
+  const handleChangeToggle = (event, newAlignment) => {
+    setAlignment(newAlignment);
+  };
+
   React.useEffect(() => {
     fetchImage()
   }, [])
@@ -116,10 +130,10 @@ function HeaderComponent() {
 
   const handleLogout = () => {
     AuthenService.logout().then(() => {
-       window.localStorage.removeItem('data');
-        window.location.pathname = '/'
-    }).catch((err) =>{
-      console.log(err) ;console.log("Error log out")
+      window.localStorage.removeItem('data');
+      window.location.pathname = '/'
+    }).catch((err) => {
+      console.log(err); console.log("Error log out")
     })
   }
 
@@ -146,53 +160,53 @@ function HeaderComponent() {
           </Typography>
           {pages.length > 0 && (
             <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
-            <IconButton
-              size="large"
-              aria-label="account of current user"
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
-              onClick={handleOpenNavMenu}
-              color="inherit"
-            >
-              <MenuIcon />
-            </IconButton>
-            <Menu
-              id="menu-appbar"
-              anchorEl={anchorElNav}
-              anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'left',
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'left',
-              }}
-              open={Boolean(anchorElNav)}
-              onClose={handleCloseNavMenu}
-              sx={{
-                display: { xs: 'block', md: 'none' },
-              }}
-            >
-              {pages.map((page) => (
-                <MenuItem key={page.page} onClick={handleCloseNavMenu}>
-                  <Typography
-                    textAlign="center"
-                    variant="h6"
-                    noWrap
-                    component={Link}
-                    to={page.link}
-                    sx={{
+              <IconButton
+                size="large"
+                aria-label="account of current user"
+                aria-controls="menu-appbar"
+                aria-haspopup="true"
+                onClick={handleOpenNavMenu}
+                color="inherit"
+              >
+                <MenuIcon />
+              </IconButton>
+              <Menu
+                id="menu-appbar"
+                anchorEl={anchorElNav}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'left',
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'left',
+                }}
+                open={Boolean(anchorElNav)}
+                onClose={handleCloseNavMenu}
+                sx={{
+                  display: { xs: 'block', md: 'none' },
+                }}
+              >
+                {pages.map((page) => (
+                  <MenuItem key={page.page} onClick={handleCloseNavMenu}>
+                    <Typography
+                      textAlign="center"
+                      variant="h6"
+                      noWrap
+                      component={Link}
+                      to={page.link}
+                      sx={{
 
-                      color: 'inherit',
-                      textDecoration: 'none',
-                    }}
-                  >{page.page}
-                  </Typography>
-                </MenuItem>
-              ))}
-            </Menu>
-          </Box>
+                        color: 'inherit',
+                        textDecoration: 'none',
+                      }}
+                    >{page.page}
+                    </Typography>
+                  </MenuItem>
+                ))}
+              </Menu>
+            </Box>
           )}
           <Typography
             variant="h5"
@@ -224,6 +238,7 @@ function HeaderComponent() {
             ))}
           </Box>
 
+
           <Box sx={{ flexGrow: 0 }}>
             {Token.info === null ? (
               <Button
@@ -235,10 +250,10 @@ function HeaderComponent() {
                 Đăng nhập
               </Button>
             ) : (
-              <div style={{display: "flex",}}>
-                <h6 style={{marginRight: "10px", transform: "translateY(25%)"}}>{Token.info != null && Token.info.person != null ? Token.info.person.fullName + `(${Token.info.person.user.username})` : ''}</h6>
+              <div style={{ display: "flex", }}>
+                <h6 style={{ marginRight: "10px", transform: "translateY(25%)" }}>{Token.info != null && Token.info.person != null ? `${Token.info.person.user.username}` : ''}</h6>
                 <div>
-                  <Tooltip title={Util.getProfile() != null  ? Util.getProfile().fullName : ''}>
+                  <Tooltip title={Util.getProfile() != null ? Util.getProfile().fullName : ''}>
                     <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                       <Avatar alt="Remy Sharp" src={img} />
                     </IconButton>
@@ -279,20 +294,20 @@ function HeaderComponent() {
                       </MenuItem>
                     ))}
                     <MenuItem onClick={handleLogout}>
-                        <Typography
-                          textAlign="center"
-                          sx={{
-                            mr: 3,
-                            // display: { xs: 'none', md: 'flex' },
-                            // fontFamily: 'monospace',
-                            fontSize: '20px',
-                            // fontWeight: 700,
-                            // letterSpacing: '.3rem',
-                            color: 'inherit',
-                            textDecoration: 'none',
-                          }}
-                        >Đăng xuất</Typography>
-                      </MenuItem>
+                      <Typography
+                        textAlign="center"
+                        sx={{
+                          mr: 3,
+                          // display: { xs: 'none', md: 'flex' },
+                          // fontFamily: 'monospace',
+                          fontSize: '20px',
+                          // fontWeight: 700,
+                          // letterSpacing: '.3rem',
+                          color: 'inherit',
+                          textDecoration: 'none',
+                        }}
+                      >Đăng xuất</Typography>
+                    </MenuItem>
                   </Menu>
                 </div>
               </div>

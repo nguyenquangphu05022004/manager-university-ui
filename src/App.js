@@ -31,7 +31,8 @@ import EventRegister from './components/event/EventRegister';
 import HomePageTime from './components/time/HomePageTime';
 import InfoSubjectTeacherOfTeacher from './components/subject/InfoSubjectTeachOfTeacher';
 import InitPassword from './components/authen/InitPassword';
-
+import EducationSubjectComponent from './components/subject/EducationSubjectComponent'
+import AspirationRegisterSubjectComponent from './components/aspirationRegisterSubject/AspirationRegisterSubjectComponent'
 function App() {
     return (
         <div>
@@ -74,6 +75,8 @@ function App() {
                         <Route path="/mon-hoc-giang-day" element={<InfoSubjectTeacherOfTeacher/>}/>
                         <Route path="/nhap-diem" element={<EnterGradeForStudentComponent/>}/>
                         <Route path="/init-password" element={<InitPassword/>}/>
+                        <Route path="/chuong-trinh-dao-tao" element={<EducationSubjectComponent/>}/>
+                        <Route path="/dang-ky-nguyen-vong" element={<AspirationRegisterSubjectComponent/>}/>
 
                     </Routes>
                 </div>

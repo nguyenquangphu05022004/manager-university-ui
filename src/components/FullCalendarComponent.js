@@ -4,7 +4,7 @@ import timegrid from '@fullcalendar/timegrid'
 import listGridView from '@fullcalendar/list'
 import { Tooltip } from 'bootstrap'
 import RegisterSubjectService from '../services/RegisterSubjectService'
-import SelectMuiComponent from '../components/GenericComponent/SelectMuiComponent';
+
 import Util from '../utils/Util'
 import Role from '../constant/Role'
 import TeacherService from '../services/TeacherService'
@@ -19,7 +19,7 @@ function FullCalendarComponent() {
   document.title = "Thời khóa biểu"
 
   useEffect(() => {
-    if(Token.info == null ? [] : Token.info.role === Role.ADMIN) {
+    if (Token.info == null ? [] : Token.info.role === Role.ADMIN) {
       setOpenSpinner(false)
     }
     if (Token.info == null ? [] : Token.info.role === Role.STUDENT) {
@@ -32,9 +32,9 @@ function FullCalendarComponent() {
           setOpenSpinner(false);
           alert("get failed register subject")
         })
-    } 
-    if(Token.info == null ? [] : Token.info.role === Role.TEACHER) {
-        TeacherService.findById(Util.getProfile().id)
+    }
+    if (Token.info == null ? [] : Token.info.role === Role.TEACHER) {
+      TeacherService.findById(Util.getProfile().id)
         .then(res => {
           setOpenSpinner(false);
           setTeacher(res.data)
@@ -71,11 +71,9 @@ function FullCalendarComponent() {
 
   const dataThoiKhoaBieu = []
 
-  const getTime = (subjectGroups) => {
-
-  }
-
+  const text = null;
   if (teacher === null) {
+    console.log(registerOfStudents)
     registerOfStudents.forEach((register) => {
       register.subjectGroup.times.forEach(time => {
         const data = {
@@ -85,7 +83,7 @@ function FullCalendarComponent() {
           endTime: time.endTime,
           endRecur: time.endDate,
           startRecur: time.startDate,
-          title: `Môn học : ${register.subjectGroup.subject.subjectName} Nhóm học : ${register.subjectGroup.groupName} Phòng học : ${time.roomClass != null ? time.roomClass.name : ''}`,
+          title: `${register.subjectGroup.subject.subjectName}*${register.subjectGroup.groupName}*${time.roomClass != null ? time.roomClass.name : ''}`,
           extendedProps: {
             description: `<div class='tool custom-tool-tip' role='tooltip'>
                               <div class='arrow'></div>
@@ -109,15 +107,16 @@ function FullCalendarComponent() {
           endTime: time.endTime,
           endRecur: time.endDate,
           startRecur: time.startDate,
-          title: `Môn học : ${subjectGroup.subject.subjectName}_Nhóm học : ${subjectGroup.groupName}_Phòng học : ${time.roomClass != null ? time.roomClass.name : ''}`,
+          title: `${subjectGroup.subject.subjectName}*${subjectGroup.groupName}*${time.roomClass != null ? time.roomClass.name : ''}`,
           extendedProps: {
             description: `<div class='tool custom-tool-tip' role='tooltip'>
                               <div class='arrow'></div>
-                            <div class='tooltip-inner'>Tên môn học: ${subjectGroup.subject.subjectName}
-                            <div class='tooltip-inner'>Nhóm học: ${subjectGroup.groupName}
-                            <div class='tooltip-inner'>Phòng học: ${time.roomClass != null ? time.roomClass.name : ''}
+                            <div class='tooltip-inner'>Tên môn học: ${subjectGroup.subject.subjectName}</div>
+                            <div class='tooltip-inner'>Nhóm học: ${subjectGroup.groupName}</div>
+                            <div class='tooltip-inner'>Phòng học: ${time.roomClass != null ? time.roomClass.name : ''}</div>
                             <div class='tooltip-inner'>Giảng viên: ${subjectGroup.teacher != null ? subjectGroup.teacher.fullName : ''}
-                          </div></div>`
+                          </div>
+                          </div>`
           }
         }
         dataThoiKhoaBieu.push(data)
@@ -126,16 +125,26 @@ function FullCalendarComponent() {
   }
   console.log(dataThoiKhoaBieu)
 
-  if(openSpinner) {
-    return <Spinner/>
+  if (openSpinner) {
+    return <Spinner />
   }
 
+  function renderEventContent(eventInfo) {
+    const data = eventInfo.event.title.split('*')
+    return (
+      <div>
+        <a className='text-size'>Thời gian: {eventInfo.timeText}</a>
+        <br />
+        <a className='text-size'>Môn học: {data[0]}</a>
+        <br />
+        <a className='text-size'>Nhóm: {data[1]}</a>
+        <br />
+        <a className='text-size'>Phòng: {data[2]}</a>
+      </div>
+    )
+  }
   return (
-    <div className='container' style={{ marginTop: '25px' }}>
-      <SelectMuiComponent
-        title="Chọn năm học"
-      />
-      <br />
+    <div className='container' style={{ marginTop: '55px' }}>
       <FullCalendar
         plugins={[timegrid, listGridView]}
         initialView="timeGridWeek"
@@ -145,19 +154,17 @@ function FullCalendarComponent() {
         events={
           dataThoiKhoaBieu
         }
+        eventContent={renderEventContent}
         headerToolbar={{
-          left: 'next today',
+          left: 'next',
           center: 'title',
-          right: 'timeGridWeek listWeek'
+          right: 'today'
         }}
         buttonText={
           {
             today: 'Hôm nay',
-            month: 'Tháng',
-            week: 'Tuần',
-            day: 'Ngày',
-            list: 'Danh sách tuần',
-            next: 'Tuần sau',
+            next: 'Tuần sau'
+            
           }
         }
         allDaySlot={false}
@@ -169,7 +176,7 @@ function FullCalendarComponent() {
         dayHeaderFormat={
           { weekday: 'long' }
         }
-        height={500}
+        height={650}
       />
     </div>
   )
