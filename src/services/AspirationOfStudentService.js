@@ -7,8 +7,8 @@ class AspirationOfStudentService {
       return Request.requests('post', SystemConstant.BASE_REST_API_URL, '/aspirations', aspirationRequest);
     }
 
-    getListAspirationOfStudent(studentId) {
-      return Request.requests('get', SystemConstant.BASE_REST_API_URL, `/aspirations/student/${studentId}`, '');
+    getListAspirationBySeasonIdAndStudentId(seasonId, studentId) {
+      return Request.requests('get', SystemConstant.BASE_REST_API_URL, `/aspirations/student/${studentId}/season/${seasonId}`, '');
     }
 
     getListAspirationOfStudent(aspirationId) {

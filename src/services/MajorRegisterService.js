@@ -30,6 +30,8 @@ class MajorRegisterService {
     getBySeasonIdAndStudentId(seasonId, studentId) {
       return Request.requests('get', SystemConstant.BASE_REST_API_URL, `/majorRegisters/student/${studentId}/season/${seasonId}`, '');
     }
-    
+    getListExtraByStudentId(studentId) {
+      return Request.requests('get', SystemConstant.BASE_REST_API_URL, `/majorRegisters/extra/student/${studentId}`, '')
+    }
 }
 export default new MajorRegisterService();

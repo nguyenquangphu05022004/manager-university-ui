@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import FullCalendar from '@fullcalendar/react'
 import timegrid from '@fullcalendar/timegrid'
-import listGridView from '@fullcalendar/list'
+import scrollgrid from '@fullcalendar/scrollgrid'
+
 import { Tooltip } from 'bootstrap'
 import RegisterSubjectService from '../services/RegisterSubjectService'
 
@@ -10,12 +11,22 @@ import Role from '../constant/Role'
 import TeacherService from '../services/TeacherService'
 import Token from '../services/Token'
 import Spinner from '../components/GenericComponent/Spinner';
+import MajorRegisterService from '../services/MajorRegisterService'
+import SeasonService from '../services/SeasonService'
+import SelectMuiComponent from './GenericComponent/SelectMuiComponent'
+import Process from './GenericComponent/Process'
+var seasonId = null;
+
 function FullCalendarComponent() {
 
   let tooltipInstance = null;
   const [registerOfStudents, setRegisterOfStudents] = useState([]);
   const [teacher, setTeacher] = useState(null)
   const [openSpinner, setOpenSpinner] = useState(true);
+  const [majorRegister, setMajorRegister] = useState(null)
+  const [seasons, setSeasons] = useState([])
+  const [openProcessMajorRegister, setOpenProcessMajorRegister] = useState(false)
+
   document.title = "Thời khóa biểu"
 
   useEffect(() => {
@@ -23,15 +34,19 @@ function FullCalendarComponent() {
       setOpenSpinner(false)
     }
     if (Token.info == null ? [] : Token.info.role === Role.STUDENT) {
-      RegisterSubjectService.getAllRegisterByStudentIdAndSeasonNotDisabled(Util.getProfile().id, false)
-        .then(res => {
-          setOpenSpinner(false);
-          setRegisterOfStudents(res.data)
-        })
-        .catch(err => {
-          setOpenSpinner(false);
-          alert("get failed register subject")
-        })
+      SeasonService.getAllByCoursesId(Util.getProfile().courses.id)
+            .then(res => {
+                setOpenSpinner(false)
+                setSeasons(res.data)
+                if (res.data.length > 0) {
+                    seasonId = res.data[0].id
+                    getMajorRegisterBySeasonIdAndStudentId(res.data[0].id, Util.getProfile().id)
+                }
+            })
+            .catch(() => {
+                setOpenSpinner(false)
+                setSeasons([])
+            })
     }
     if (Token.info == null ? [] : Token.info.role === Role.TEACHER) {
       TeacherService.findById(Util.getProfile().id)
@@ -73,8 +88,8 @@ function FullCalendarComponent() {
 
   const text = null;
   if (teacher === null) {
-    console.log(registerOfStudents)
-    registerOfStudents.forEach((register) => {
+    console.log(majorRegister)
+    majorRegister != null && majorRegister.registerDTOS.length > 0 &&  majorRegister.registerDTOS.forEach((register) => {
       register.subjectGroup.times.forEach(time => {
         const data = {
           groupId: 'blueEvents', // recurrent events in this group move together
@@ -123,7 +138,54 @@ function FullCalendarComponent() {
       })
     })
   }
-  console.log(dataThoiKhoaBieu)
+  const getMajorRegisterBySeasonIdAndStudentId = (seaId, studentId) => {
+    setOpenProcessMajorRegister(true)
+    MajorRegisterService.getBySeasonIdAndStudentId(seaId, studentId)
+        .then(res => {
+            seasonId = seaId;
+            setOpenProcessMajorRegister(false)
+            setMajorRegister(res.data)
+        }).catch(err => {
+            setMajorRegister(null)
+            setOpenProcessMajorRegister(false)
+        })
+
+}
+  const getSeason = () => {
+    setSeasons([])
+    SeasonService.getAllByCoursesId(Util.getProfile().courses.id)
+      .then(res => {
+        setSeasons(res.data)
+        if (res.data.length > 0) {
+          seasonId = res.data[0].id
+          getMajorRegisterBySeasonIdAndStudentId(res.data[0].id, Util.getProfile().id)
+        }
+      })
+      .catch(() => {
+        setSeasons([])
+      })
+  }
+  const getSeasonExtra = () => {
+    setSeasons([])
+    SeasonService.getListSeasonExtraByStudent(Util.getProfile().id)
+      .then(res => {
+        setSeasons(res.data);
+        if (res.data.length > 0) {
+          seasonId = res.data[0].id
+          getMajorRegisterBySeasonIdAndStudentId(res.data[0].id, Util.getProfile().id)
+        }
+      }).catch(err => {
+        console.log(err)
+      })
+  }
+  const handleSelectSemester = (e) => {
+    const select = e.target.value;
+    if (select == 1) {
+      getSeason();
+    } else {
+      getSeasonExtra();
+    }
+  }
 
   if (openSpinner) {
     return <Spinner />
@@ -145,39 +207,67 @@ function FullCalendarComponent() {
   }
   return (
     <div className='container' style={{ marginTop: '55px' }}>
-      <FullCalendar
-        plugins={[timegrid, listGridView]}
-        initialView="timeGridWeek"
-        weekends={true}
-        eventMouseEnter={handleMouseEnter}
-        eventMouseLeave={handleMouseLeave}
-        events={
-          dataThoiKhoaBieu
-        }
-        eventContent={renderEventContent}
-        headerToolbar={{
-          left: 'next',
-          center: 'title',
-          right: 'today'
-        }}
-        buttonText={
-          {
-            today: 'Hôm nay',
-            next: 'Tuần sau'
-            
+      <div className="form-group mb-3">
+        <SelectMuiComponent
+          title="Chọn học kỳ"
+          type={"SEASON_EXTRA"}
+
+          width={'100%'}
+          defaultValue={1}
+          function={handleSelectSemester}
+        />
+      </div>
+      <div className="form-group mb-3">
+        {seasons.length > 0 ? <div>
+          <SelectMuiComponent
+            title="Chọn mùa học"
+            type={"SEASON"}
+            data={seasons}
+            width={'100%'}
+            defaultValue={seasons[0].id}
+            function={(e) => getMajorRegisterBySeasonIdAndStudentId(e.target.value, Util.getProfile().id)}
+          />
+          {openProcessMajorRegister && <Process />}
+        </div>
+          : ''}
+      </div>
+      <div className='mb-3'>
+        <FullCalendar
+          plugins={[timegrid, scrollgrid]}
+          initialView="timeGridWeek"
+          weekends={true}
+          eventMouseEnter={handleMouseEnter}
+          eventMouseLeave={handleMouseLeave}
+          events={
+            dataThoiKhoaBieu
           }
-        }
-        allDaySlot={false}
-        scrollTime={"07:00:00"}
-        slotMinTime={"07:00:00"}
-        slotMaxTime={"21:00:00"}
-        timeFormat={'H(:mm)'}
-        locale={'vi'}
-        dayHeaderFormat={
-          { weekday: 'long' }
-        }
-        height={650}
-      />
+          eventContent={renderEventContent}
+          headerToolbar={{
+            left: 'next',
+            center: 'title',
+            right: 'today'
+          }}
+          buttonText={
+            {
+              today: 'Hôm nay',
+              next: 'Tuần sau'
+
+            }
+          }
+          allDaySlot={false}
+          scrollTime={"07:00:00"}
+          slotMinTime={"07:00:00"}
+          slotMaxTime={"21:00:00"}
+          timeFormat={'H(:mm)'}
+          locale={'vi'}
+          dayHeaderFormat={
+            { weekday: 'long' }
+          }
+          height={650}
+          dayMinWidth={180}
+          stickyFooterScrollbar={true}
+        />
+      </div>
     </div>
   )
 }

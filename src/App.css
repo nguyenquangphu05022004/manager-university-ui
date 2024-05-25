@@ -81,12 +81,7 @@ body {
 .fc .fc-timegrid-slot {
   height: 2.5em;
 }
-@media only screen and (max-width: 768px) {
-  .fc .fc-timegrid-slot {
-    height: 5em;
-    width: 10em;
-  }
-}
+
 .text-size {
   text-decoration: none;
   color: white;

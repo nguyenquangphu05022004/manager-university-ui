@@ -20,6 +20,9 @@ class SeasonService {
     getListSeasonExtraByStudent(studentId) {
         return Request.requests('get', SystemConstant.BASE_REST_API_URL, `/seasons/student/${studentId}/extra`, '');
     }
+    getAllSeasonExtra() {
+        return Request.requests('get', SystemConstant.BASE_REST_API_URL, `/seasons/extra`, '');
+    }
     
 }
 

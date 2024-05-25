@@ -20,7 +20,7 @@ function RegisterSubjectComponent() {
     const major = Util.getMajor();
 
     const [openProcessMajorRegister, setOpenProcessMajorRegister] = useState(false)
-    const [openProcessSubject, setOpenProcessSubject]= useState(false)
+    const [openProcessSubject, setOpenProcessSubject] = useState(false)
     const [seasons, setSeasons] = useState([])
 
     document.title = "Đăng ký môn học"
@@ -330,7 +330,7 @@ function RegisterSubjectComponent() {
             <div>
 
                 <div className="form-group mb-3">
-                    <h4 style={{color:'red'}}>Khi đăng ký môn học lại/cải thiện của kỳ phụ cần đăng ký đúng môn đã đăng ký nguyện vọng trước đó.</h4>
+                    <h4 style={{ color: 'red' }}>Khi đăng ký môn học lại/cải thiện của kỳ phụ cần đăng ký đúng môn đã đăng ký nguyện vọng và được duyệt trước đó.</h4>
                     <label className="form-label">
                         Tên chuyên ngành:
                     </label>
@@ -342,29 +342,14 @@ function RegisterSubjectComponent() {
                     />
                 </div>
                 <div className="form-group mb-3">
-                    <Box sx={{ minWidth: 120 }}>
-                        <FormControl sx={{ minWidth: `100%` }}>
-                            <InputLabel id="demo-simple-select-label">{"Chọn học kỳ"}</InputLabel>
-                            <Select
-                                labelId="demo-simple-select-label"
-                                id="demo-simple-select"
-                                label={"Chọn học kỳ"}
-                                onChange={handleSelectSemester}
-                                defaultValue={1}
-                            >
-                                <MenuItem
-                                    value={1}
-                                >
-                                    {'Học kỳ chính'}
-                                </MenuItem>
-                                <MenuItem
-                                    value={2}
-                                >
-                                    {'Học kỳ phụ'}
-                                </MenuItem>
-                            </Select>
-                        </FormControl>
-                    </Box>
+                    <SelectMuiComponent
+                        title="Chọn học kỳ"
+                        type={"SEASON_EXTRA"}
+                 
+                        width={'100%'}
+                        defaultValue={1}
+                        function={handleSelectSemester}
+                    />
                 </div>
                 <div className="form-group mb-3">
                     {seasons.length > 0 ? <div>
@@ -389,7 +374,7 @@ function RegisterSubjectComponent() {
                             width={'100%'}
                             function={(e) => getAllGroupSubjectBySubjectId(e.target.value)}
                         />
-                        {openProcessSubject && <Process/>}
+                        {openProcessSubject && <Process />}
                     </div>
                     <div className="form-group mb-3">
                         <ListMuiComponent

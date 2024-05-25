@@ -9,32 +9,33 @@ function SelectMuiComponent(param) {
     let seasonItem = null;
     let subjectItem = null;
     let roomClassesItem = null;
-    if(param.type === "SEMESTER") {
+    let seasonExtra = null;
+    if (param.type === "SEMESTER") {
         semesterItem = param.data.map(dt => {
             return (
                 <MenuItem
                     key={dt.id}
                     value={dt.id}
-                    // style={getStyles(name, personName, theme)}
-                    >
+                // style={getStyles(name, personName, theme)}
+                >
                     {dt.semesterName}
                 </MenuItem>
             )
         })
-    } else if(param.type === "SCHOOL_YEAR") {
+    } else if (param.type === "SCHOOL_YEAR") {
         schoolYearItem = param.data.map(dt => {
             return (
                 <MenuItem
                     key={dt.id}
                     value={dt.id}
-                    // style={getStyles(name, personName, theme)}
-                    >
+                // style={getStyles(name, personName, theme)}
+                >
                     {dt.name}
                 </MenuItem>
             )
         }
-    )
-    } else if(param.type === 'COURSE') {
+        )
+    } else if (param.type === 'COURSE') {
         courseItem = param.data.map(course => {
             return (
                 <MenuItem
@@ -45,7 +46,7 @@ function SelectMuiComponent(param) {
                 </MenuItem>
             )
         })
-    } else if(param.type === 'SEASON') {
+    } else if (param.type === 'SEASON') {
         seasonItem = param.data.map(season => {
             return (
                 <MenuItem
@@ -56,7 +57,7 @@ function SelectMuiComponent(param) {
                 </MenuItem>
             )
         })
-    } else if(param.type==="SUBJECT") {
+    } else if (param.type === "SUBJECT") {
         subjectItem = param.data.map(subject => {
             return (
                 <MenuItem
@@ -67,7 +68,7 @@ function SelectMuiComponent(param) {
                 </MenuItem>
             )
         })
-    } else if(param.type==="ROOM_CLASS") {
+    } else if (param.type === "ROOM_CLASS") {
         roomClassesItem = param.data.map(roomClass => {
             return (
                 <MenuItem
@@ -78,13 +79,24 @@ function SelectMuiComponent(param) {
                 </MenuItem>
             )
         })
+    } else if (param.type === 'SEASON_EXTRA') {
+        const data = [<MenuItem
+            value={1}
+        >
+            {'Học kỳ chính'}
+        </MenuItem>,  <MenuItem
+                    value={2}
+                >
+                    {'Học kỳ phụ'}
+                </MenuItem>]
+        seasonExtra = data.map(d => d);
     }
 
 
 
     return (
         <Box sx={{ minWidth: 120 }}>
-            <FormControl sx={{minWidth: `${param.width}`}} disabled={param.isDisable}>
+            <FormControl sx={{ minWidth: `${param.width}` }} disabled={param.isDisable}>
                 <InputLabel id="demo-simple-select-label">{param.title}</InputLabel>
                 <Select
                     labelId="demo-simple-select-label"
@@ -98,7 +110,8 @@ function SelectMuiComponent(param) {
                     {courseItem != null && courseItem}
                     {seasonItem != null && seasonItem}
                     {subjectItem != null && subjectItem}
-                    {roomClassesItem != null &&  roomClassesItem}
+                    {roomClassesItem != null && roomClassesItem}
+                    {seasonExtra != null && seasonExtra}
                 </Select>
             </FormControl>
         </Box>

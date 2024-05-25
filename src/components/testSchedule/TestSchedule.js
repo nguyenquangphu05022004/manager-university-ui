@@ -6,24 +6,25 @@ import TestScheduleService from "../../services/TestScheduleService";
 import ListMuiComponent from "../GenericComponent/ListMuiComponent";
 import Spinner from "../GenericComponent/Spinner";
 import Process from "../GenericComponent/Process";
-
+var seasonId = null
 function TestSchedule() {
     const [seasons, setSeasons] = useState([])
     const [testSchedules, setTestSchedules] = useState([])
-    const [seasonId, setSeasonId] = useState('');
     const [openSpinner, setOpenSpinner] = useState(true)
     const [openProcess, setOpenProcess] = useState(false);
+    const [openProcessSeason, setOpenProcessSeason] = useState(false)
     document.title = "Lịch thi"
 
     useEffect(() => {
         SeasonService.getAllByCoursesId(Util.getProfile().courses.id)
             .then(res => {
+                setSeasons(res.data);
+                setOpenSpinner(false)     
                 if (res.data.length > 0) {
+                    seasonId = res.data[0].id
                     getTestScheduleBySeasonIdAndStudentId(res.data[0].id)
                 }
-                setOpenSpinner(false)
-                setSeasonId(res.data[0].id)
-                setSeasons(res.data);
+                   
             }).catch(err => {
                 setOpenSpinner(false)
             })
@@ -89,12 +90,51 @@ function TestSchedule() {
         setOpenProcess(true);
         TestScheduleService.getListBySeasonIdAndStudentId(seasonId, Util.getProfile().id)
             .then(res => {
-                setOpenProcess(false);
                 setTestSchedules(res.data)
+                setOpenProcess(false);
             }).catch(err => {
                 setOpenProcess(false)
                 console.log(err)
             })
+    }
+    const getAllSeasonByCoursesId = () => {
+        setSeasons([])
+        setOpenProcessSeason(true)
+        SeasonService.getAllByCoursesId(Util.getProfile().courses.id)
+            .then(res => {
+                setSeasons(res.data)
+                setOpenProcessSeason(false)
+                if (res.data.length > 0) {
+                    seasonId = res.data[0].id
+                    getTestScheduleBySeasonIdAndStudentId(res.data[0].id)
+                }
+            }).catch(err => {
+                setOpenProcessSeason(false)
+                setSeasons([])
+            })
+    }
+    const getAllSeasonExtraByStudentId = () => {
+        setSeasons([])
+        SeasonService.getListSeasonExtraByStudent(Util.getProfile().id)
+            .then(res => {
+                setSeasons(res.data);
+                setOpenProcessSeason(false)
+                if (res.data.length > 0) {
+                    seasonId = res.data[0].id
+                    getTestScheduleBySeasonIdAndStudentId(res.data[0].id)
+                }
+            }).catch(err => {
+                setOpenProcessSeason(false)
+                setSeasons([])
+            })
+    }
+    const handleSelectSemester = (e) => {
+        const select = e.target.value;
+        if (select == 1) {
+            getAllSeasonByCoursesId();
+        } else {
+            getAllSeasonExtraByStudentId();
+        }
     }
     if (openSpinner) {
         return (<Spinner />)
@@ -104,22 +144,33 @@ function TestSchedule() {
             style={{
                 marginTop: '30px'
             }}>
-            <div className="form-group mb-3">
+            <div className="form-group mb-4">
                 <h3 class="text-center">Lịch thi</h3>
             </div>
-            {seasonId && (
-                <div className="form-group mb-3">
+            <div className='form-group mb-4'>
+                <SelectMuiComponent
+                    title="Chọn học kỳ"
+                    type={"SEASON_EXTRA"}
+                    width={'100%'}
+                    defaultValue={1}
+                    function={handleSelectSemester}
+                />
+                {openProcessSeason && <Process />}
+            </div>
+            <div className="form-group mb-3">
+                {seasons.length > 0 ? <div>
                     <SelectMuiComponent
-                        title="Chọn môn học"
+                        title="Chọn mùa học"
                         type={"SEASON"}
                         data={seasons}
                         width={'100%'}
-                        defaultValue={seasonId}
-                        function={(e) => { getTestScheduleBySeasonIdAndStudentId(e.target.value) }}
+                        defaultValue={seasons[0].id}
+                        function={e => getTestScheduleBySeasonIdAndStudentId(e.target.value)}
                     />
-                    {openProcess && <Process/>}
+                    {openProcess && <Process />}
                 </div>
-            )}
+                    : ''}
+            </div>
             <div className="form-group mb-3">
                 <ListMuiComponent
                     columns={columns}

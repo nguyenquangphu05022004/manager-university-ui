@@ -8,19 +8,21 @@ import ListMuiComponent from "../GenericComponent/ListMuiComponent";
 import Spinner from '../GenericComponent/Spinner'
 import MajorRegisterService from "../../services/MajorRegisterService";
 import PaymentService from "../../payment/PaymentService";
+import SelectMuiComponent from "../GenericComponent/SelectMuiComponent";
+import Process from "../GenericComponent/Process";
 function TuitionComponent() {
 
     const [majorRegisters, setMajorRegisters] = useState([])
     const [openSpinner, setOpenSpinner] = useState(true);
+    const [processGetMajor,setProcessGetMajor] = useState(false)
     document.title = "Học phí"
-
     useEffect(() => {
         MajorRegisterService.getAllByStudentIdAndCoursesId(Util.getProfile().id, Util.getProfile().courses.id)
             .then(res => {
                 setOpenSpinner(false)
                 setMajorRegisters(res.data)
             })
-            .catch((err) =>{
+            .catch((err) => {
                 setOpenSpinner(false)
                 console.log(err)
             })
@@ -64,7 +66,7 @@ function TuitionComponent() {
 
     ];
     const createDataTuition = (season, subjects, totalCredit, creditPrice, totalPrice, paid, status) => {
-        return { season, subjects, totalCredit, creditPrice, totalPrice, paid,status }
+        return { season, subjects, totalCredit, creditPrice, totalPrice, paid, status }
     }
     const handlePayment = (amount, content) => {
         PaymentService.redirectToPaymentPage(amount, content)
@@ -97,19 +99,52 @@ function TuitionComponent() {
             />), majorRegister.totalCreditOfStudent, majorRegister.tuitionDTO != null ? Util.formatNumber(majorRegister.tuitionDTO.moneyPerCredit) : null,
                 majorRegister.totalPrice != null ? Util.formatNumber(majorRegister.totalPrice) : null,
                 majorRegister.paymentOfPerStudentAtCurrentSeason == null ? '0' : Util.formatNumber(majorRegister.paymentOfPerStudentAtCurrentSeason.amountPaid),
-                majorRegister.paymentOfPerStudentAtCurrentSeason == null || majorRegister.paymentOfPerStudentAtCurrentSeason.complete == false ? (<button className="btn btn-primary" onClick={() => { handlePayment(majorRegister.totalPrice, Util.getProfile().id + " " + majorRegister.id)}}>Thanh toán</button>) : "Thanh toán đầy đủ")
+                majorRegister.paymentOfPerStudentAtCurrentSeason == null || majorRegister.paymentOfPerStudentAtCurrentSeason.complete == false ? (<button className="btn btn-primary" onClick={() => { handlePayment(majorRegister.totalPrice, Util.getProfile().id + " " + majorRegister.id) }}>Thanh toán</button>) : <h6 style={{ color: 'green' }}>Thanh toán đầy đủ</h6>)
         )
     })
-    console.log(majorRegisters)
-    if(openSpinner) {
-        return <Spinner/>
+    const getAllMajorRegisterExtraOfStudent = () => {
+        setMajorRegisters([])
+        setProcessGetMajor(true)
+        MajorRegisterService.getListExtraByStudentId(Util.getProfile().id)
+            .then(res => {
+                setProcessGetMajor(false)
+                setMajorRegisters(res.data)
+            })
+            .catch((err) => {
+                setProcessGetMajor(false)
+                console.log(err)
+            })
+    }
+    const getAllMajorRegisterOfStudent = () => {
+        setMajorRegisters([])
+        setProcessGetMajor(true)
+        MajorRegisterService.getAllByStudentIdAndCoursesId(Util.getProfile().id, Util.getProfile().courses.id)
+            .then(res => {
+                setProcessGetMajor(false)
+                setMajorRegisters(res.data)
+            })
+            .catch((err) => {
+                setProcessGetMajor(false)
+                console.log(err)
+            })
+    }
+    const handleSelectSemester = (e) => {
+        const select = e.target.value;
+        if (select == 1) {
+            getAllMajorRegisterOfStudent();
+        } else {
+            getAllMajorRegisterExtraOfStudent();
+        }
+    }
+    if (openSpinner) {
+        return <Spinner />
     }
     return (
         <div className='container'
             style={{
                 marginTop: '30px'
             }}>
-                <div  className="table">
+            <div className="table">
                 <table className="table-bordered border-primary">
                     <thead>
                         <tr>
@@ -139,13 +174,23 @@ function TuitionComponent() {
                         </tr>
                     </tbody>
                 </table>
-                </div>
-                <ListMuiComponent
-                    title="Học phí"
-                    columns={columns}
-                    rows={rows}
-                />
             </div>
+            <div className="form-group mb-3">
+                    <SelectMuiComponent
+                        title="Chọn học kỳ"
+                        type={"SEASON_EXTRA"}
+                        width={'100%'}
+                        defaultValue={1}
+                        function={handleSelectSemester}
+                    />
+                    {processGetMajor && <Process/>}
+                </div>
+            <ListMuiComponent
+                title="Học phí"
+                columns={columns}
+                rows={rows}
+            />
+        </div>
     )
 }
 

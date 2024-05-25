@@ -5,8 +5,11 @@ import Util from "../../utils/Util";
 import ListMuiComponent from "../GenericComponent/ListMuiComponent";
 import Spinner from "../GenericComponent/Spinner";
 import MajorRegisterService from "../../services/MajorRegisterService";
+import SelectMuiComponent from "../GenericComponent/SelectMuiComponent";
+import Process from "../GenericComponent/Process";
 function ListGradeComponent() {
     const [majorRegisters, setMajorRegisters] = useState([])
+    const [processGetMajor,setProcessGetMajor] = useState(false)
     const [openSpinner, setOpenSpinner] = useState(true)
     document.title = "Xem điểm"
 
@@ -77,6 +80,40 @@ function ListGradeComponent() {
             />), majorRegister.seasonGradeAverage)
         )
     })
+    const getAllMajorRegisterExtraOfStudent = () => {
+        setMajorRegisters([])
+        setProcessGetMajor(true)
+        MajorRegisterService.getListExtraByStudentId(Util.getProfile().id)
+            .then(res => {
+                setProcessGetMajor(false)
+                setMajorRegisters(res.data)
+            })
+            .catch((err) => {
+                setProcessGetMajor(false)
+                console.log(err)
+            })
+    }
+    const getAllMajorRegisterOfStudent = () => {
+        setMajorRegisters([])
+        setProcessGetMajor(true)
+        MajorRegisterService.getAllByStudentIdAndCoursesId(Util.getProfile().id, Util.getProfile().courses.id)
+            .then(res => {
+                setProcessGetMajor(false)
+                setMajorRegisters(res.data)
+            })
+            .catch((err) => {
+                setProcessGetMajor(false)
+                console.log(err)
+            })
+    }
+    const handleSelectSemester = (e) => {
+        const select = e.target.value;
+        if (select == 1) {
+            getAllMajorRegisterOfStudent();
+        } else {
+            getAllMajorRegisterExtraOfStudent();
+        }
+    }
     if(openSpinner) {
         return <Spinner/>
     }
@@ -85,11 +122,27 @@ function ListGradeComponent() {
             style={{
                 marginTop: '30px'
             }}>
+            <div className="mt-3 mb-4">
+                <h5 style={{color:'red'}}>Chú ý: Trong trường hợp điểm học lại/cải thiện thấp hơn điểm của học kỳ chính thì điểm của môn học đó được giữ nguyên.</h5>
+            </div>
+                <div className="form-group mb-3">
+                    <SelectMuiComponent
+                        title="Chọn học kỳ"
+                        type={"SEASON_EXTRA"}
+                        width={'100%'}
+                        defaultValue={1}
+                        function={handleSelectSemester}
+                    />
+                    {processGetMajor && <Process/>}
+                </div>
+            <div className="form-group mb-3">
             <ListMuiComponent
                 title="Kết quả học tập"
                 columns={columns}
                 rows={rows}
             />
+
+            </div>
         </div>
     )
 }
