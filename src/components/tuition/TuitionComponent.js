@@ -28,7 +28,19 @@ function TuitionComponent() {
             })
     }, [])
 
-
+    const columnsSubject = [
+        { id: 'name', label: 'Tên môn học', align: 'center', minWidth: 100 },
+        { id: 'code', label: 'Mã môn học', align: 'center', minWidth: 170 },
+        {
+            id: 'credit',
+            label: 'Số tín',
+            minWidth: 170,
+            align: 'center',
+        }
+    ]
+    const createDataSubject = (name, code, credit) => {
+        return {name, code, credit}
+    }
     const columns = [
         { id: 'season', label: 'Mùa học', align: 'center', minWidth: 100 },
         { id: 'subjects', label: 'Xem các môn', align: 'center', minWidth: 170 },
@@ -81,16 +93,11 @@ function TuitionComponent() {
                 nameSomething={'Thời gian học'}
                 number={2}
                 interface={
-                    <ListBoostrapComponent
-                        columns={['Tên môn', 'Mã môn', 'Số tín']}
+                    <ListMuiComponent
+                        columns={columnsSubject}
                         rows={majorRegister.registerDTOS.length != 0 ? majorRegister.registerDTOS.map(register => {
-                            return (
-                                <tr>
-                                    <td>{register.subjectGroup.subject.subjectName}</td>
-                                    <td>{register.subjectGroup.subject.subjectCode}</td>
-                                    <td>{register.subjectGroup.subject.credit}</td>
-                                </tr>
-                            )
+                            return createDataSubject(register.subjectGroup.subject.subjectName,register.subjectGroup.subject.subjectCode,register.subjectGroup.subject.credit)
+                          
                         }) : []}
                     />
 

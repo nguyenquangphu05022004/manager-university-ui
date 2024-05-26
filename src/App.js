@@ -28,10 +28,10 @@ import AdminGradeComponent from './components/grade/AdminGradeComponent';
 import EnterGradeForStudentComponent from './components/grade/EnterGradeForStudentComponent';
 import TuitionAdminComponent from './components/tuition/TuitionAdminComponent';
 import EventRegister from './components/event/EventRegister';
-import HomePageTime from './components/time/HomePageTime';
 import InfoSubjectTeacherOfTeacher from './components/subject/InfoSubjectTeachOfTeacher';
 import InitPassword from './components/authen/InitPassword';
 import EducationSubjectComponent from './components/subject/EducationSubjectComponent'
+import AdminTestSchedule from './components/testSchedule/AdminTestSchedule'
 import AspirationRegisterSubjectComponent from './components/aspirationRegisterSubject/AspirationRegisterSubjectComponent'
 function App() {
     return (
@@ -71,12 +71,12 @@ function App() {
                         <Route path="/admin/grades/enter-grade-for-student" element={<EnterGradeForStudentComponent/>}/>
                         <Route path="/admin/tuition" element={<TuitionAdminComponent/>}/>
                         <Route path="/admin/events" element={<EventRegister/>}/>
-                        <Route path="/admin/schedule" element={<HomePageTime/>}/>
                         <Route path="/mon-hoc-giang-day" element={<InfoSubjectTeacherOfTeacher/>}/>
                         <Route path="/nhap-diem" element={<EnterGradeForStudentComponent/>}/>
                         <Route path="/init-password" element={<InitPassword/>}/>
                         <Route path="/chuong-trinh-dao-tao" element={<EducationSubjectComponent/>}/>
                         <Route path="/dang-ky-nguyen-vong" element={<AspirationRegisterSubjectComponent/>}/>
+                        <Route path="/admin/test-schedule" element={<AdminTestSchedule/>}/>
 
                     </Routes>
                 </div>

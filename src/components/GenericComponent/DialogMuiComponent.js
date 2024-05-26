@@ -18,6 +18,15 @@ const style = {
 
 export default function BasicModal(props) {
   const [open, setOpen] = React.useState(false);
+
+  const [scroll, setScroll] = React.useState('paper');
+
+  const handleClickOpen = (scrollType) => () => {
+    setOpen(true);
+    setScroll(scrollType);
+  };
+
+
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
@@ -29,6 +38,8 @@ export default function BasicModal(props) {
         onClose={handleClose}
         aria-labelledby={"modal-modal-title" + props.number}
         aria-describedby={"modal-modal-description" + props.number}
+        style={{overflow: "auto"}}
+
       >
         <Box sx={style}>
           <Typography id={"modal-modal-title" + props.number} variant="h6" component="h2">

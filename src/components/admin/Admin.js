@@ -34,7 +34,8 @@ function Admin() {
             <Button variant="contained" component={Link} to={"/admin/events"}>Sự kiện</Button>
             <br/>
             <br/>
-            <Button variant="contained" component={Link} to={"/admin/schedule"}>Thời gian</Button>
+            <Button variant="contained" component={Link} to={"/admin/test-schedule"}>Lịch thi</Button>
+            
         </div>
     )
 }

@@ -80,9 +80,9 @@ function TestSchedule() {
     }
     const rows = testSchedules.map((testSchedule) => {
         return (
-            createDateTestSchedule(testSchedule.roomNumber, testSchedule.roomClass.name, testSchedule.numberOfStudent,
-                testSchedule.subject.subjectName, testSchedule.startDate, testSchedule.startTime,
-                testSchedule.endTime, testSchedule.testType === "QUIZ" ? "Trắc nghiệm" : "Tự luận")
+            createDateTestSchedule(testSchedule.testGroup, testSchedule.examResponse.roomClass, testSchedule.numberOfStudent,
+                testSchedule.examResponse.subjectName, testSchedule.startDate, testSchedule.startTime,
+                testSchedule.endTime, testSchedule.examResponse.testType === "QUIZ" ? "Trắc nghiệm" : "Tự luận")
         )
     })
 
@@ -98,6 +98,7 @@ function TestSchedule() {
             })
     }
     const getAllSeasonByCoursesId = () => {
+        setTestSchedules([])
         setSeasons([])
         setOpenProcessSeason(true)
         SeasonService.getAllByCoursesId(Util.getProfile().courses.id)
@@ -114,6 +115,7 @@ function TestSchedule() {
             })
     }
     const getAllSeasonExtraByStudentId = () => {
+        setTestSchedules([])
         setSeasons([])
         SeasonService.getListSeasonExtraByStudent(Util.getProfile().id)
             .then(res => {

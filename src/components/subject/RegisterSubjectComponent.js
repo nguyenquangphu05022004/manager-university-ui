@@ -102,6 +102,34 @@ function RegisterSubjectComponent() {
             })
     }
 
+    const columTime = [
+        { id: 'day', label: 'Thứ', align: 'center', minWidth: 170 },
+        {
+            id: 'start',
+            label: 'Ngày bắt đầu',
+            minWidth: 120,
+            align: 'center',
+            format: (value) => value.toLocaleString('en-US'),
+        },
+        {
+            id: 'end',
+            label: 'Ngày kết thúc',
+            minWidth: 120,
+            align: 'center',
+            format: (value) => value.toLocaleString('en-US'),
+        },
+        {
+            id: 'time',
+            label: 'Thời gian',
+            minWidth: 50,
+            align: 'center',
+            format: (value) => value.toFixed(2),
+        }
+    ];
+    const createDataTime = (day, start, end, time) => {
+        return {day, start, end, time};
+    }
+    
     const columns1 = [
         { id: 'subjectCode', label: 'Mã môn học', align: 'center', minWidth: 170 },
         { id: 'subjectName', label: 'Tên môn học', align: 'center', minWidth: 170 },
@@ -161,17 +189,10 @@ function RegisterSubjectComponent() {
                         nameSomething={'Thời gian học'}
                         number={1}
                         interface={
-                            <ListBoostrapComponent
-                                columns={['Thứ', 'Ngày bắt đầu', 'Ngày kết thúc', 'Thời gian']}
+                            <ListMuiComponent
+                                columns={columTime}
                                 rows={subjectGroup.times.length != 0 ? subjectGroup.times.map(time => {
-                                    return (
-                                        <tr>
-                                            <td>{time.dayOfWeek}</td>
-                                            <td>{time.startDate}</td>
-                                            <td>{time.endDate}</td>
-                                            <td>{time.startTime + " - " + time.endTime}</td>
-                                        </tr>
-                                    )
+                                    return createDataTime(time.dayOfWeek + 1 == 8 ? 'Chủ nhật' : time.dayOfWeek + 1, time.startDate, time.endDate, time.startTime + " - " + time.endTime)
                                 }) : []}
                             />
                         }
@@ -265,17 +286,10 @@ function RegisterSubjectComponent() {
                         nameSomething={'Thời gian học'}
                         number={2}
                         interface={
-                            <ListBoostrapComponent
-                                columns={['Thứ', 'Ngày bắt đầu', 'Ngày kết thúc', 'Thời gian']}
+                            <ListMuiComponent
+                                columns={columTime}
                                 rows={register.subjectGroup.times.length != 0 ? register.subjectGroup.times.map(time => {
-                                    return (
-                                        <tr>
-                                            <td>{time.dayOfWeek}</td>
-                                            <td>{time.startDate}</td>
-                                            <td>{time.endDate}</td>
-                                            <td>{time.startTime + " - " + time.endTime}</td>
-                                        </tr>
-                                    )
+                                    return createDataTime(time.dayOfWeek + 1 == 8 ? 'Chủ nhật' : time.dayOfWeek + 1, time.startDate, time.endDate, time.startTime + " - " + time.endTime)
                                 }) : []}
                             />
                         }
