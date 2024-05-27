@@ -1,17 +1,18 @@
 import { React, useEffect, useState } from "react";
-import ListBoostrapComponent from '../GenericComponent/ListBoostrapComponent';
-import SeasonService from '../../services/SeasonService'
-import DialogMuiComponent from '../GenericComponent/DialogMuiComponent'
-import ListMuiComponent from "../GenericComponent/ListMuiComponent";
-import TestType from "../../constant/TestType";
-import SelectMuiComponent from "../GenericComponent/SelectMuiComponent";
-import RoomClassService from "../../services/RoomClassService";
-import TestScheDuleService from '../../services/TestScheduleService'
-function AdminTestSchedule() {
+import ListBoostrapComponent from './GenericComponent/ListBoostrapComponent';
+import SeasonService from '../services/SeasonService'
+import DialogMuiComponent from './GenericComponent/DialogMuiComponent'
+import ListMuiComponent from "./GenericComponent/ListMuiComponent";
+import TestType from "../constant/TestType";
+import SelectMuiComponent from "./GenericComponent/SelectMuiComponent";
+import RoomClassService from "../services/RoomClassService";
+import TestScheDuleService from '../services/TestScheduleService'
+import MajorRegisterService from "../services/MajorRegisterService";
+function AdminManagerSubject() {
     const [seasons, setSeasons] = useState([])
     const [perMoneyCredit, setPerMoneyCredit] = useState('')
     const [roomClasses, setRoomClasses] = useState([])
-    
+
     const [roomClassId, setRoomClassId] = useState('')
     const [testType, setTestType] = useState(TestType.ESSAY)
     const [testGroup, setTestGroup] = useState('')
@@ -23,8 +24,8 @@ function AdminTestSchedule() {
     document.title = "Đăng ký lịch thi"
     useEffect(() => {
         RoomClassService.getAllRoomClass()
-        .then(res => setRoomClasses(res.data))
-        .catch(err => console.log(err))
+            .then(res => setRoomClasses(res.data))
+            .catch(err => console.log(err))
         SeasonService.getAllSeason()
             .then(res => {
                 setSeasons(res.data);
@@ -32,7 +33,7 @@ function AdminTestSchedule() {
     }, [])
     const handleSelectRoomClass = (roomId) => {
         setRoomClassId(roomId)
-    } 
+    }
     const columns = [
         { id: 'season', label: 'Mùa học', align: 'center', minWidth: 100 },
         { id: 'details', label: 'Xem chi tiết', align: 'center', minWidth: 170 },
@@ -54,26 +55,35 @@ function AdminTestSchedule() {
             }
         }
         TestScheDuleService.createTestSchedule(testSchedule)
-        .then(() => {
-            alert("Đã tạo nhóm thi: " + testGroup)
-        }).catch((err) => {
-            console.log(err)
-            alert("Xảy ra lỗi thi tạo lịch thi")
-        })
+            .then(() => {
+                alert("Đã tạo nhóm thi: " + testGroup)
+            }).catch((err) => {
+                console.log(err)
+                alert("Xảy ra lỗi thi tạo lịch thi")
+            })
     }
     const createDataSeason = (season, details) => {
         return { season, details }
     }
 
+    const handleOpenRegister = (majorRegisterId, openRegister) => {
+        MajorRegisterService.handleOpenRegister(majorRegisterId, openRegister)
+            .then(() => {
+                if (openRegister) alert("Đã bật")
+                else alert("Đã đóng")
+            })
+            .catch(() => alert("Xảy ra lỗi!"))
+    }
+
     const rows = seasons.map((season) => {
         return (
-            createDataSeason(season.nameSeason, (<DialogMuiComponent
+            createDataSeason(season.fullNameSeason, (<DialogMuiComponent
                 nameAction="Xem chi tiết"
-                nameSomething={'Chuyên ngành'}
+                nameSomething={season.fullNameSeason}
                 number={2}
                 interface={
                     <ListBoostrapComponent
-                        columns={['Chuyên ngành', 'Các môn học', 'Tổng số tín']}
+                        columns={['Chuyên ngành', 'Các môn học', 'Tổng số tín', 'Mở đăng ký', 'Đóng đăng ký']}
                         rows={season.majorRegisterDTOS.length != 0 ? season.majorRegisterDTOS.map(majorRegister => {
                             return (
                                 <tr>
@@ -81,7 +91,7 @@ function AdminTestSchedule() {
                                     <td>
                                         <DialogMuiComponent
                                             nameAction="Xem chi tiết"
-                                            nameSomething={'Môn học'}
+                                            nameSomething={season.fullNameSeason + " ngành " + majorRegister.majorDTO.name}
                                             number={3}
                                             interface={
                                                 <ListBoostrapComponent
@@ -94,7 +104,7 @@ function AdminTestSchedule() {
                                                                 <td>{subject.credit}</td>
                                                                 <td><DialogMuiComponent
                                                                     nameAction="Lịch thi"
-                                                                    nameSomething={'Chi tiết lịch thi'}
+                                                                    nameSomething={subject.subjectName}
                                                                     number={4}
                                                                     interface={
                                                                         <div>
@@ -199,7 +209,7 @@ function AdminTestSchedule() {
                                                                                                             type="time"
                                                                                                             placeholder="Mã môn học"
                                                                                                             className="form-control"
-                                                                                                            value={endTime  }
+                                                                                                            value={endTime}
                                                                                                             onChange={(e) => setEndTime(e.target.value)}
                                                                                                         />
                                                                                                     </div>
@@ -255,6 +265,8 @@ function AdminTestSchedule() {
                                         />
                                     </td>
                                     <td>{majorRegister.totalCreditOfMajor}</td>
+                                    <td><button className="btn btn-primary" onClick={() => handleOpenRegister(majorRegister.id, true)}>Mở đăng ký</button>{majorRegister.openRegister === true ? '(Đang mở)' : '(Đã đóng)'}</td>
+                                    <td><button className="btn btn-primary" onClick={() => handleOpenRegister(majorRegister.id, false)}>Đóng đăng ký</button>{majorRegister.openRegister === false ? '(Đã đóng)' : '(Đang mở)'}</td>
 
                                 </tr>
                             )
@@ -279,4 +291,4 @@ function AdminTestSchedule() {
         </div>
     )
 }
-export default AdminTestSchedule;
+export default AdminManagerSubject;

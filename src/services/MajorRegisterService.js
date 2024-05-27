@@ -33,5 +33,9 @@ class MajorRegisterService {
     getListExtraByStudentId(studentId) {
       return Request.requests('get', SystemConstant.BASE_REST_API_URL, `/majorRegisters/extra/student/${studentId}`, '')
     }
+    handleOpenRegister(majorRegisterId, openRegister) {
+      return Request.requests('put', SystemConstant.BASE_REST_API_URL, `/majorRegisters/${majorRegisterId}/openRegister?openRegister=${openRegister}`, '')
+
+    }
 }
 export default new MajorRegisterService();

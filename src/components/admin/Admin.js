@@ -34,8 +34,11 @@ function Admin() {
             <Button variant="contained" component={Link} to={"/admin/events"}>Sự kiện</Button>
             <br/>
             <br/>
-            <Button variant="contained" component={Link} to={"/admin/test-schedule"}>Lịch thi</Button>
-            
+            <Button variant="contained" component={Link} to={"/admin/manager-subject"}>Quản lý về vấn đề môn học</Button>
+            <br/>
+            <br/>
+            <Button variant="contained" component={Link} to={"/admin/seasons"}>Mùa học</Button>
+    
         </div>
     )
 }

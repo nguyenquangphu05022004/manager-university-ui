@@ -31,8 +31,11 @@ import EventRegister from './components/event/EventRegister';
 import InfoSubjectTeacherOfTeacher from './components/subject/InfoSubjectTeachOfTeacher';
 import InitPassword from './components/authen/InitPassword';
 import EducationSubjectComponent from './components/subject/EducationSubjectComponent'
-import AdminTestSchedule from './components/testSchedule/AdminTestSchedule'
+import AdminTestSchedule from './components/AdminManagerSubject'
 import AspirationRegisterSubjectComponent from './components/aspirationRegisterSubject/AspirationRegisterSubjectComponent'
+import AdminRegisterSubjectComponent from './components/subject/AdminRegisterSubjectComponent';
+import AdminManagerSubject from './components/AdminManagerSubject';
+import SeasonComponent from './components/season/SeasonComponent';
 function App() {
     return (
         <div>
@@ -76,7 +79,8 @@ function App() {
                         <Route path="/init-password" element={<InitPassword/>}/>
                         <Route path="/chuong-trinh-dao-tao" element={<EducationSubjectComponent/>}/>
                         <Route path="/dang-ky-nguyen-vong" element={<AspirationRegisterSubjectComponent/>}/>
-                        <Route path="/admin/test-schedule" element={<AdminTestSchedule/>}/>
+                        <Route path="/admin/manager-subject" element={<AdminManagerSubject/>}/>
+                        <Route path="/admin/seasons" element={<SeasonComponent/>}/>
 
                     </Routes>
                 </div>

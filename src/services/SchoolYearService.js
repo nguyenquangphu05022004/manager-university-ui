@@ -6,6 +6,9 @@ class SchoolYearService {
     getAllSchoolYear() {
         return Request.requests('get', SystemConstant.BASE_REST_API_URL, '/schoolYears', '');
     }
+    createSchoolYear(schoolYear) {
+        return Request.requests('post', SystemConstant.BASE_REST_API_URL, '/schoolYears', schoolYear);
+    }
 
 
 }

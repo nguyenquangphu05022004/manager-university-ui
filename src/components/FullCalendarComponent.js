@@ -88,7 +88,6 @@ function FullCalendarComponent() {
 
   const text = null;
   if (teacher === null) {
-    console.log(majorRegister)
     majorRegister != null && majorRegister.registerDTOS.length > 0 &&  majorRegister.registerDTOS.forEach((register) => {
       register.subjectGroup.times.forEach(time => {
         const data = {
@@ -98,7 +97,7 @@ function FullCalendarComponent() {
           endTime: time.endTime,
           endRecur: time.endDate,
           startRecur: time.startDate,
-          title: `${register.subjectGroup.subject.subjectName}*${register.subjectGroup.groupName}*${time.roomClass != null ? time.roomClass.name : ''}`,
+          title: `${register.subjectGroup.subject.subjectName}*${register.subjectGroup.groupName}*${time.roomClass != null ? time.roomClass.name : ''}*${register.subjectGroup.teacher != null ? register.subjectGroup.teacher.fullName : ''}`,
           extendedProps: {
             description: `<div class='tool custom-tool-tip' role='tooltip'>
                               <div class='arrow'></div>
@@ -202,6 +201,9 @@ function FullCalendarComponent() {
         <a className='text-size'>Nhóm: {data[1]}</a>
         <br />
         <a className='text-size'>Phòng: {data[2]}</a>
+        <br/>
+        <a className='text-size'>Giảng viên: {data[3]}</a>
+
       </div>
     )
   }

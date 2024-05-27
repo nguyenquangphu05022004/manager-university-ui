@@ -17,8 +17,6 @@ import Token from '../services/Token';
 import AuthenService from '../services/AuthenService';
 import Util from '../utils/Util';
 import Role from '../constant/Role'
-import ToggleButton from '@mui/material/ToggleButton';
-import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 const teacher = [
   {
     page: "Môn học giảng dạy",
@@ -228,7 +226,7 @@ function HeaderComponent() {
             {pages.map((page, index) => (
               <Button
                 onClick={handleCloseNavMenu}
-                sx={{ my: 1, color: 'white', display: 'block' }}
+                sx={{ my: 1, color: 'white', display: 'block-inline' }}
                 component={Link}
                 to={page.link}
                 key={index}
@@ -237,8 +235,6 @@ function HeaderComponent() {
               </Button>
             ))}
           </Box>
-
-
           <Box sx={{ flexGrow: 0 }}>
             {Token.info === null ? (
               <Button

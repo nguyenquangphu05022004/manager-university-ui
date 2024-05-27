@@ -23,6 +23,9 @@ class SeasonService {
     getAllSeasonExtra() {
         return Request.requests('get', SystemConstant.BASE_REST_API_URL, `/seasons/extra`, '');
     }
+    createSeason(season) {
+        return Request.requests('post', SystemConstant.BASE_REST_API_URL, `/seasons`, season);
+    }
     
 }
 

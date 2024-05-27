@@ -62,36 +62,54 @@ const ListMajorComponent = () => {
                     {major.sub}
                 </td>
                 <td>
-                <DialogMuiComponent nameAction="Môn học" 
+                    <DialogMuiComponent nameAction="Môn học"
                         nameSomething={major.name}
                         number={1}
                         interface={
-                        <ListBoostrapComponent
-                            actionAdd={
-                                <button style={{border:'none', marginBottom:'15px', padding:'0 0'}}>
-                                    <DialogMuiComponent
-                                nameAction="Đăng ký môn học cho chuyên ngành"
-                                number={2}
-                                nameSomething={"Đăng ký môn học:"}
-                                interface={<RegisterSubjectForMajorComponent majorName={major.name} majorId={major.id}/>}
-                            /></button>
-                            }
-                            columns={['Khóa học', 'Năm học','Kỳ học', 'Môn học', 'Xóa']}
-                            rows={major.majorRegisterDTOS.map(majorRegister => {
-                                return majorRegister.subjectDTOS.map(subject => {
+                            <ListBoostrapComponent
+                                actionAdd={
+                                    <button style={{ border: 'none', marginBottom: '15px', padding: '0 0' }}>
+                                        <DialogMuiComponent
+                                            nameAction="Đăng ký môn học cho chuyên ngành"
+                                            number={2}
+                                            nameSomething={"Đăng ký môn học:"}
+                                            interface={<RegisterSubjectForMajorComponent majorName={major.name} majorId={major.id} />}
+                                        /></button>
+                                }
+                                columns={['Mùa học', , 'Môn học']}
+                                rows={major.majorRegisterDTOS.map(majorRegister => {
                                     return (
-                                        <tr key={major.id + subject.id}>
-                                            <td>{majorRegister.seasonDTO.courses.name} - {majorRegister.seasonDTO.courses.code}</td>
-                                            <td>{majorRegister.seasonDTO.schoolYear.name}</td>
-                                            <td>{majorRegister.seasonDTO.semester.semesterName}</td>
-                                            <td>{subject.subjectName}</td>
-                                            <td><button>Xóa</button></td>
+                                        <tr>
+                                            <td>{majorRegister.seasonDTO.fullNameSeason}</td>
+                                            <td>
+                                                    <DialogMuiComponent
+                                                        nameAction="Xem chi tiết"
+                                                        number={4}
+                                                        nameSomething={majorRegister.seasonDTO.fullNameSeason + ' ngành ' + major.name}
+                                                        interface={
+                                                          <ListBoostrapComponent
+                                                                columns={['Mã môn học','Tên môn học', 'Số tín chỉ']}
+                                                                rows={majorRegister.subjectDTOS.length > 0 ? 
+                                                                    majorRegister.subjectDTOS.map((subject) => {
+                                                                        return (
+                                                                            <tr>
+                                                                                <td>{subject.subjectCode}</td>
+                                                                                <td>{subject.subjectName}</td>
+                                                                                <td>{subject.credit}</td>
+
+                                                                            </tr>
+                                                                        )
+                                                                    })
+                                                                    : []}
+                                                          />  
+                                                        }
+                                                    />
+                                            </td>
                                         </tr>
                                     )
-                                })
-                            })}
-                        />
-                    }
+                                })}
+                            />
+                        }
                     />
                 </td>
                 <td>
@@ -125,12 +143,12 @@ const ListMajorComponent = () => {
         )
     })
 
-return (
-    <ListBoostrapComponent
-        title = "Danh sách các ngành học"
-        rows = {rows}
-        columns = {columns}
-    />
+    return (
+        <ListBoostrapComponent
+            title="Danh sách các ngành học"
+            rows={rows}
+            columns={columns}
+        />
     )
 }
 export default ListMajorComponent;

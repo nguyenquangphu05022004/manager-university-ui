@@ -7,6 +7,7 @@ import AddSubjectGroupComponent from './AddSubjectGroupComponent';
 import RoomClassService from '../../services/RoomClassService';
 import SelectMuiComponent from '../GenericComponent/SelectMuiComponent';
 import TimeService from '../../services/TimeService';
+import SubjectGroupService from '../../services/SubjectGroupService';
 const ListSubjectComponent = () => {
     const [subjects, setSubjects] = useState([]);
     const [check, setCheck] = useState(true);
@@ -18,6 +19,7 @@ const ListSubjectComponent = () => {
     const [startTime, setStartTime] = useState('')
     const [endTime, setEndTime] = useState('')
     const [numberOfDay, setNumberOfDay] = useState('')
+    const [teacherCode, setTeacherCode] = useState('')
     useEffect(() => {
         RoomClassService.getAllRoomClass()
             .then(res => setRoomClasses(res.data))
@@ -27,7 +29,7 @@ const ListSubjectComponent = () => {
 
     const handleSelectRoomClass = (roomId) => {
         setRoomClassId(roomId)
-    } 
+    }
     console.log(subjects)
 
     const getAllSubjects = () => {
@@ -66,6 +68,15 @@ const ListSubjectComponent = () => {
         )
     ]
 
+    const updateTeacherForTeachSubject = (subjectGroupId) => {
+        SubjectGroupService.updateTeacher(subjectGroupId, teacherCode)
+        .then(() => {
+            alert("Đã cập nhật vào database")
+        }) .catch(() => {
+            alert("Xảy ra lỗi, Mã giảng viên không hợp lệ")
+        })
+    }
+
     const handleCreateTimeForSubjectGroup = (subjectGroupId) => {
         const dataRequest = {
             "dayOfWeek": numberOfDay,
@@ -76,13 +87,13 @@ const ListSubjectComponent = () => {
             "subjectGroupDTO": {
                 "id": subjectGroupId
             },
-            "roomClassDTO": {
+            "roomClass": {
                 "id": roomClassId
             }
         }
         TimeService.createTime(dataRequest)
-        .then(() => alert('Time saved to database'))
-        .catch(err => console.log(err))
+            .then(() => alert('Time saved to database'))
+            .catch(err => console.log(err))
 
     }
     const rows = subjects.map(subject => {
@@ -112,12 +123,37 @@ const ListSubjectComponent = () => {
                                             interface={<AddSubjectGroupComponent subjectName={subject.subjectName} subjectId={subject.id} />}
                                         /></button>
                                 }
-                                columns={['Nhóm', 'Giảng viên', 'Số sinh viên', 'Thời gian', 'Xóa']}
+                                columns={['Nhóm', 'Giảng viên', 'Số sinh viên', 'Thời gian']}
                                 rows={subject.subjectGroupDTOS.map(subjectGroup => {
                                     return (
                                         <tr key={subjectGroup.id}>
                                             <td>{subjectGroup.groupName}</td>
-                                            <td>{subjectGroup.teacher != null ? subjectGroup.teacher.fullName : "Not teacher"}</td>
+                                            <td>{subjectGroup.teacher != null ? subjectGroup.teacher.fullName :
+                                                <button style={{border:'none'}}>
+                                                    <DialogMuiComponent
+                                                        nameAction="Cập nhật giảng viên"
+                                                        nameSomething={'Thời gian học'}
+                                                        number={3}
+                                                        interface={<div className="card-body">
+                                                        <div className="form-group mb-3">
+                                                            <label className="form-label">
+                                                                Mã giảng viên:
+                                                            </label>
+                                                            <input
+                                                                type="text"
+                                                                placeholder="Mã giảng viên"
+                                                                className="form-control"
+                                                                value={teacherCode}
+                                                                onChange={(e) => setTeacherCode(e.target.value)}
+                                                            />
+                                                        </div>
+                                                        <div className="form-group">
+                                                            <button className='btn btn-primary w-100' onClick={() => updateTeacherForTeachSubject(subjectGroup.id)}>Gửi</button>
+                                                        </div>
+                                                        </div>}
+                                                        />
+
+                                                </button>}</td>
                                             <td>{subjectGroup.numberOfStudent}</td>
                                             <td>
                                                 <DialogMuiComponent
@@ -207,7 +243,7 @@ const ListSubjectComponent = () => {
                                                                                     </label>
                                                                                     <input
                                                                                         type="text"
-                                                                                        placeholder="Thứ trong tuần(Chú ý thứ 2 mặc định là 0, thứ 3 là 1 cứ như vậy đến Chủ nhật)"
+                                                                                        placeholder="Thứ trong tuần(Chú ý Chủ nhật mặc định là 0, thứ 2 là 1, thứ 3 là 2 cứ như vậy đến Thứ 7)"
                                                                                         className="form-control"
                                                                                         value={numberOfDay}
                                                                                         onChange={(e) => setNumberOfDay(e.target.value)}
@@ -223,22 +259,22 @@ const ListSubjectComponent = () => {
                                                                                     />
                                                                                 </div>
                                                                                 <div className="form-group mb-2">
-                                                                                    <button value={subjectGroup.id} className='btn btn-primary w-100 mt-4' onClick={(e) => handleCreateTimeForSubjectGroup(e.target.value)}> Tạo</button>
+                                                                                    <button className='btn btn-primary w-100 mt-4' onClick={() => handleCreateTimeForSubjectGroup(subjectGroup.id)}> Tạo</button>
                                                                                 </div>
                                                                             </div>
                                                                         }
                                                                     />
-                                                                </button>   
+                                                                </button>
                                                             }
                                                             columns={['Thứ', 'Ngày bắt đầu', 'Ngày kết thúc', 'Thời gian', "Phòng học"]}
                                                             rows={subjectGroup.times.length != 0 ? subjectGroup.times.map(time => {
                                                                 return (
                                                                     <tr>
-                                                                        <td>{time.dayOfWeek}</td>
+                                                                        <td>{time.dayOfWeek + 1}</td>
                                                                         <td>{time.startDate}</td>
                                                                         <td>{time.endDate}</td>
                                                                         <td>{time.startTime + " - " + time.endTime}</td>
-                                                                        <td>{time.roomClassDTO != null && time.roomClassDTO.name}</td>
+                                                                        <td>{time.roomClass != null && time.roomClass.name}</td>
                                                                     </tr>
                                                                 )
                                                             }) : []}
@@ -246,7 +282,6 @@ const ListSubjectComponent = () => {
                                                     }
                                                 />
                                             </td>
-                                            <td><button>Xóa</button></td>
                                         </tr>
                                     )
                                 })}
