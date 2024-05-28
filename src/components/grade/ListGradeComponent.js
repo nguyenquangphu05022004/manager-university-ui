@@ -89,7 +89,7 @@ function ListGradeComponent() {
                         columns={columnsSubject}
                         rows={majorRegister.registerDTOS.length != 0 ? majorRegister.registerDTOS.map(register => {
                             return createDataSubject(register.subjectGroup.subject.subjectName,register.subjectGroup.subject.subjectCode,register.subjectGroup.subject.credit, (<DialogMuiComponent
-                                nameAction={register.grade != null ? register.grade.subjectAverage : 'Chưa tính'}
+                                nameAction={register.grade != null ? register.grade.averageWithFourGrade.includes('_PLUS') ? register.grade.averageWithFourGrade[0] + '+' : register.grade.averageWithFourGrade : 'Chưa tính'}
                                 nameSomething={'Điểm thành phần'}
                                 number={3}
                                 interface={

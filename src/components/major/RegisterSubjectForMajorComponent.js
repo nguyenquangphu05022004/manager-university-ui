@@ -63,6 +63,7 @@ function AddSubjectForMajorComponent(props) {
                     <SelectMuiComponent
                         title="Mùa học"
                         width='100%'
+                        choice="FULL"
                         data={seasons}
                         type="SEASON"
                         function = {(e) => setSeasonId(e.target.value)}

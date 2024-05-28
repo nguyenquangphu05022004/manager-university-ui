@@ -38,7 +38,7 @@ function AdminGradeComponent() {
     }
     const rows = seasons.map((season) => {
         return (
-            createDataGrade(season.nameSeason, <DialogMuiComponent
+            createDataGrade(season.fullNameSeason, <DialogMuiComponent
                 nameAction="Xem chi tiết"
                 nameSomething={'Chuyên ngành'}
                 number={2}

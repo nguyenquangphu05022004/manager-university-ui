@@ -39,7 +39,7 @@ function TuitionAdminComponent() {
     }
     const rows = seasons.map((season) => {
         return (
-            createDataGrade(season.nameSeason, (<DialogMuiComponent
+            createDataGrade(season.fullNameSeason, (<DialogMuiComponent
                 nameAction="Xem chi tiết"
                 nameSomething={'Chuyên ngành'}
                 number={2}
@@ -77,7 +77,7 @@ function TuitionAdminComponent() {
                                     <td>
                                         <DialogMuiComponent
                                             nameAction="Khởi tạo"
-                                            nameSomething={'Mẫu'}
+                                            nameSomething={majorRegister.majorDTO.name}
                                             number={3}
                                             interface={
                                                 <div className="container">
@@ -103,7 +103,7 @@ function TuitionAdminComponent() {
                                                                     <input
                                                                         type="text"
                                                                         className="form-control"
-                                                                        value={season.nameSeason}
+                                                                        value={season.fullNameSeason}
                                                                         disabled={true}
                                                                     />
                                                                 </div>

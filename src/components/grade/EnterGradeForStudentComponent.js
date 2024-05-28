@@ -19,6 +19,8 @@ function EnterGradeForStudentComponent(params) {
         .catch(err => console.log(err))
     }, [])
 
+    console.log(components)
+
     const columns = [
         { id: 'attend', label: 'Chuyên cần', align: 'center', minWidth: 170 },
         { id: 'practice', label: 'Bài tập/Thực hành', align: 'center', minWidth: 170 },

@@ -6,7 +6,7 @@ class GradeService {
         return Request.requests("get", SystemConstant.BASE_REST_API_URL, `/grades/user/${registerOfMajorId}`, "")
     }
     getListComponentGrade() {
-        return Request.requests("get", SystemConstant.BASE_REST_API_URL, `/grades/grade-component`, "")
+        return Request.requests("get", SystemConstant.BASE_REST_API_URL, `/grades/gradeComponents`, "")
     }
     submitEnterGrade(studentCode, subjectCode, requestData) {
         return Request.requests("post", SystemConstant.BASE_REST_API_URL, `/grades?studentCode=${studentCode}&subjectCode=${subjectCode}`, requestData)

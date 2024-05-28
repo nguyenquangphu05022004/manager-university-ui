@@ -47,16 +47,32 @@ function SelectMuiComponent(param) {
             )
         })
     } else if (param.type === 'SEASON') {
-        seasonItem = param.data.map(season => {
-            return (
-                <MenuItem
-                    value={season.id}
-                    key={season.id}
-                >
-                    {season.nameSeason}
-                </MenuItem>
-            )
-        })
+        if(param.choice === 'FULL') {
+            seasonItem = param.data.map(season => {
+                return (
+                    <MenuItem
+                        value={season.id}
+                        key={season.id}
+                    >
+                        {season.fullNameSeason}
+                    </MenuItem>
+                )
+            })
+        }
+        else {
+             
+                seasonItem = param.data.map(season => {
+                    return (
+                        <MenuItem
+                            value={season.id}
+                            key={season.id}
+                        >
+                            {season.nameSeason}
+                        </MenuItem>
+                    )
+                })
+            
+        }
     } else if (param.type === "SUBJECT") {
         subjectItem = param.data.map(subject => {
             return (

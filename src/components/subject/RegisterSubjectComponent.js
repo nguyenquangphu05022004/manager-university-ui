@@ -10,7 +10,7 @@ import ListMuiComponent from '../GenericComponent/ListMuiComponent';
 import Spinner from '../GenericComponent/Spinner'
 import Process from '../GenericComponent/Process'
 import SeasonService from '../../services/SeasonService';
-import { Box, FormControl, InputLabel, Select, MenuItem, Checkbox } from "@mui/material";
+import {  Checkbox } from "@mui/material";
 var seasonId = null;
 function RegisterSubjectComponent() {
 
@@ -40,6 +40,7 @@ function RegisterSubjectComponent() {
             })
     }, [])
 
+    console.log(seasons)
     const getSeason = () => {
         setSeasons([])
         SeasonService.getAllByCoursesId(Util.getProfile().courses.id)
@@ -334,7 +335,7 @@ function RegisterSubjectComponent() {
             <Spinner />
         )
     }
-
+    console.log('MajorRegister: ',majorRegister)
     return (
         <div className='container'
             style={{
@@ -345,6 +346,7 @@ function RegisterSubjectComponent() {
 
                 <div className="form-group mb-3">
                     <h4 style={{ color: 'red' }}>Khi đăng ký môn học lại/cải thiện của kỳ phụ cần đăng ký đúng môn đã đăng ký nguyện vọng và được duyệt trước đó.</h4>
+                    <h4 style={{ color: 'black' }}>Thời gian đăng ký: {majorRegister != null && majorRegister.eventRegisterResponse != null ? majorRegister.eventRegisterResponse.formatStart + ' đến ' + majorRegister.eventRegisterResponse.formatEnd : 'Chưa có thời gian' }.</h4>
                     <label className="form-label">
                         Tên chuyên ngành:
                     </label>
@@ -398,14 +400,7 @@ function RegisterSubjectComponent() {
                         />
                     </div>
                 </div>) :
-                    (<div className="form-group mb-3">
-                        <input
-                            type="text"
-                            className="form-control text-center"
-                            value={"Thời gian đăng ký chưa có!"}
-                            disabled
-                        />
-                    </div>)}
+                    ''}
                 <div className="form-group mb-3">
                     <ListMuiComponent
                         title="Đăng ký thành công"
