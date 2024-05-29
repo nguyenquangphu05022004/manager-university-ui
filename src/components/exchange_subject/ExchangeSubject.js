@@ -10,43 +10,77 @@ import TransactionService from '../../services/TransactionService';
 import ListMuiComponent from '../GenericComponent/ListMuiComponent';
 import Spinner from '../GenericComponent/Spinner';
 import Process from '../GenericComponent/Process';
+import SeasonService from '../../services/SeasonService';
+import SubjectGroupService from '../../services/SubjectGroupService';
+import Semester from '../../constant/Semester';
+var seasonId = null;
 
 function ExchangeSubject() {
 
-    const [registers, setRegisters] = useState([]);
     const [registerOpenedTransactions, setRegisterOpenedTransactions] = useState([])
     const [openSpinner, setOpenSpinner] = useState(true);
-    const [openProcess, setOpenProcess]= useState(false);
+    const [openProcess, setOpenProcess] = useState(false);
+    const [openProcessSubject, setOpenProcessSubject] = useState(false)
+
     document.title = "Trao đổi môn học"
 
 
     const [majorRegister, setMajorRegister] = useState(null)
     const major = Util.getMajor();
-
+    const [seasons, setSeasons] = useState([])
+    const [openProcessMajorRegister, setOpenProcessMajorRegister] = useState(false)
 
     useEffect(() => {
-        if (major != null) {
-        MajorRegisterService.getMajoRegisterByStudentIdAndSeasonNotDisabledAndOpenRegisterAdCoursesId(Util.getProfile().id, true, Util.getProfile().courses.id)
-                .then(res =>{ 
-                    setMajorRegister(res.data)
-                    RegisterService.getAllRegisterByStudentIdAndSeasonNotDisabled(Util.getProfile().id, false)
-                    .then(res => {
-                        setOpenSpinner(false);
-                        setRegisters(res.data)
-                    })
-                    .catch(err => {
-                        setOpenSpinner(false);
-                        alert("error get registered")
-                    })
+        SeasonService.getAllByCoursesId(Util.getProfile().courses.id)
+            .then(res => {
+                setOpenSpinner(false)
+                setSeasons(res.data)
+                if (res.data.length > 0) {
+                    seasonId = res.data[0].id
+                    getMajorRegisterBySeasonIdAndStudentId(res.data[0].id, Util.getProfile().id)
                 }
-                )
-                .catch(err => {
-                    setOpenSpinner(false)
-                    console.log("error get majorregister")
-                })
-            
-        }
+            })
+            .catch(() => {
+                setOpenSpinner(false)
+                setSeasons([])
+            })
     }, [])
+
+    const getMajorRegisterBySeasonIdAndStudentId = (seaId, studentId) => {
+        setOpenProcessMajorRegister(true)
+        MajorRegisterService.getBySeasonIdAndStudentId(seaId, studentId)
+            .then(res => {
+                seasonId = seaId;
+                setOpenProcessMajorRegister(false)
+                setMajorRegister(res.data)
+            }).catch(err => {
+                setMajorRegister(null)
+                setOpenProcessMajorRegister(false)
+            })
+
+    }
+
+
+    const columnsTimeTable = [
+        { id: 'day', label: 'Thứ', align: 'center', minWidth: 130 },
+        { id: 'start', label: 'Ngày bắt đầu', align: 'center', minWidth: 170 },
+        {
+            id: 'end',
+            label: 'Ngày kết thúc',
+            minWidth: 100,
+            align: 'center',
+        },
+        {
+            id: 'time',
+            label: 'Thời gian',
+            minWidth: 100,
+            align: 'center',
+        },
+    ]
+    const createDataTimeTable = (day, start, end, time) => {
+        day += 1;
+        return {day, start, end, time }
+    }
 
 
 
@@ -70,13 +104,13 @@ function ExchangeSubject() {
     }
     const removeTransaction = (targetRegister, subjectId) => {
         TransactionService.deleteByTargetRegisterAndStudentRequestId(targetRegister, Util.getProfile().id)
-        .then(() => {
-            getAllListRegisterOpenedBySubjectId(subjectId);
-        })
-        .catch(err => {
-            getAllListRegisterOpenedBySubjectId(subjectId)
-            alert("You catch error when delete transaction")
-        })
+            .then(() => {
+                getAllListRegisterOpenedBySubjectId(subjectId);
+            })
+            .catch(err => {
+                getAllListRegisterOpenedBySubjectId(subjectId)
+                alert("You catch error when delete transaction")
+            })
     }
 
     const confirmTransaction = (targetRegisterId, requestRegisterId) => {
@@ -140,7 +174,63 @@ function ExchangeSubject() {
     const createDataRegister = (subjectCode, subjectName, credit, time, group, teacher, listExchange, openTransaction, closeTransaction) => {
         return { subjectCode, subjectName, credit, time, group, teacher, listExchange, openTransaction, closeTransaction }
     }
-    const rows1 = registers.map(register => {
+    const createListTransactionOfStudent = (student, subjectCode, subjectName, credit, time, group, teacher, action) => {
+        return { student, subjectCode, subjectName, credit, time, group, teacher, action };
+    }
+    const columnsListTransaction = [
+        {
+            id: 'student',
+            label: 'Sinh viên',
+            minWidth: 140,
+            align: 'center',
+        },
+        {
+            id: 'subjectCode',
+            label: 'Mã môn',
+            minWidth: 140,
+            align: 'center',
+        },
+        {
+            id: 'subjectName',
+            label: 'Tên môn',
+            minWidth: 140,
+            align: 'center',
+        },
+        {
+            id: 'credit',
+            label: 'Tín chỉ',
+            minWidth: 140,
+            align: 'center',
+        },
+        {
+            id: 'time',
+            label: 'Khung giờ',
+            minWidth: 140,
+            align: 'center',
+        },
+        {
+            id: 'group',
+            label: 'Nhóm',
+            minWidth: 140,
+            align: 'center',
+        },
+        {
+            id: 'teacher',
+            label: 'Giảng viên',
+            minWidth: 140,
+            align: 'center'
+        },
+        {
+            id: 'action',
+            label: 'Đồng ý',
+            minWidth: 140,
+            align: 'center'
+        }
+    ]
+
+
+
+    const rows1 = majorRegister != null && majorRegister.registerDTOS.length > 0 ? majorRegister.registerDTOS.map(register => {
         return (
             createDataRegister(register.subjectGroup.subject.subjectCode, register.subjectGroup.subject.subjectName,
                 register.subjectGroup.subject.credit, (<DialogMuiComponent
@@ -148,16 +238,11 @@ function ExchangeSubject() {
                     nameSomething={'Thời gian học'}
                     number={2}
                     interface={
-                        <ListBoostrapComponent
-                            columns={['Thứ', 'Ngày bắt đầu', 'Ngày kết thúc', 'Thời gian']}
+                        <ListMuiComponent
+                            columns={columnsTimeTable}
                             rows={register.subjectGroup.times.length != 0 ? register.subjectGroup.times.map(time => {
                                 return (
-                                    <tr>
-                                        <td>{time.dayOfWeek}</td>
-                                        <td>{time.startDate}</td>
-                                        <td>{time.endDate}</td>
-                                        <td>{time.startTime + " - " + time.endTime}</td>
-                                    </tr>
+                                    createDataTimeTable(time.dayOfWeek, time.startDate, time.endDate, time.startTime + " - " + time.endTime)
                                 )
                             }) : []}
                         />
@@ -168,49 +253,36 @@ function ExchangeSubject() {
                     nameSomething={'Danh sách trao đổi'}
                     number={2}
                     interface={
-                        <ListBoostrapComponent
-                            columns={['Sinh viên', 'Mã môn', 'Tên môn', 'Tín chỉ', 'Khung giờ', 'Nhóm', 'Giảng viên', "Đồng ý"]}
+                        <ListMuiComponent
+                            columns={columnsListTransaction}
                             rows={register.transactionList != 0 ? register.transactionList.map(transaction => {
                                 return (
-                                    <tr>
-                                        <td>{transaction.registerDTO.studentDTO.fullName}</td>
-                                        <td>{transaction.registerDTO.subjectGroup.subject.subjectCode}</td>
-                                        <td>{transaction.registerDTO.subjectGroup.subject.subjectName}</td>
-                                        <td>{transaction.registerDTO.subjectGroup.subject.credit}</td>
-                                        <td>
-                                            <DialogMuiComponent
-                                                nameAction="Xem"
-                                                nameSomething={'Thời gian học'}
-                                                number={2}
-                                                interface={
-                                                    <ListBoostrapComponent
-                                                        columns={['Thứ', 'Ngày bắt đầu', 'Ngày kết thúc', 'Thời gian']}
-                                                        rows={transaction.registerDTO.subjectGroup.times.length != 0 ? transaction.registerDTO.subjectGroup.times.map(time => {
-                                                            return (
-                                                                <tr>
-                                                                    <td>{time.dayOfWeek}</td>
-                                                                    <td>{time.startDate}</td>
-                                                                    <td>{time.endDate}</td>
-                                                                    <td>{time.startTime + " - " + time.endTime}</td>
-                                                                </tr>
-                                                            )
-                                                        }) : []}
-                                                    />
-                                                }
-                                            />
-                                        </td>
-                                        <td>{transaction.registerDTO.subjectGroup.groupName}</td>
-                                        <td>{transaction.registerDTO.subjectGroup.teacher != null ? transaction.registerDTO.subjectGroup.teacher.fullName : ''}</td>
-                                        <td>
-                                            <Checkbox
-                                                sx={{ '& .MuiSvgIcon-root': { fontSize: 28 } }}
-                                                value={transaction.registerDTO.id}
-                                                onClick={(e) => {
-                                                    confirmTransaction(register.id, e.target.value);
-                                                }}
-                                            />
-                                        </td>
-                                    </tr>
+                                    createListTransactionOfStudent(transaction.registerDTO.studentDTO.fullName, transaction.registerDTO.subjectGroup.subject.subjectCode,
+                                        transaction.registerDTO.subjectGroup.subject.subjectName, transaction.registerDTO.subjectGroup.subject.credit,
+                                        <DialogMuiComponent
+                                            nameAction="Xem"
+                                            nameSomething={'Thời gian học'}
+                                            number={2}
+                                            interface={
+                                                <ListMuiComponent
+                                                    columns={columnsTimeTable}
+                                                    rows={transaction.registerDTO.subjectGroup.times.length != 0 ? transaction.registerDTO.subjectGroup.times.map(time => {
+                                                        return (
+                                                            createDataTimeTable(time.dayOfWeek, time.startDate, time.endDate, time.startTime + " - " + time.endTime)
+                                                        )
+                                                    }) : []}
+                                                />
+                                            }
+                                        />, transaction.registerDTO.subjectGroup.groupName, transaction.registerDTO.subjectGroup.teacher != null ? transaction.registerDTO.subjectGroup.teacher.fullName : '',
+                                        <Checkbox
+                                            sx={{ '& .MuiSvgIcon-root': { fontSize: 28 } }}
+                                            value={transaction.registerDTO.id}
+                                            onClick={(e) => {
+                                                confirmTransaction(register.id, e.target.value);
+                                            }}
+                                        />
+                                    )
+
                                 )
                             }) : []}
                         />
@@ -233,14 +305,14 @@ function ExchangeSubject() {
             )
 
         )
-    })
+    }) : []
 
     const sendRequest = (tagetRegisterId, subjectId) => {
         TransactionService.createTransaction(tagetRegisterId, Util.getProfile().id)
             .then(res => {
                 getAllListRegisterOpenedBySubjectId(subjectId)
             }).catch(err => {
-                alert("Môn học bạn đổi không có trong danh sách đăng ký của bạn")
+                alert("Môn học bạn đổi không có trong danh sách đăng ký của bạn hoặc bị trùng môn học")
                 getAllListRegisterOpenedBySubjectId(subjectId)
             })
     }
@@ -294,16 +366,16 @@ function ExchangeSubject() {
             format: (value) => value.toFixed(2),
         },
     ];
-    const createDataRegisterOpenedTransaction = (avatarStudent,subjectCode, subjectName,
+    const createDataRegisterOpenedTransaction = (avatarStudent, subjectCode, subjectName,
         credit, time, group, teacher, register, cancel) => {
-        return {avatarStudent, subjectCode, subjectName, credit, time, group, teacher, register, cancel }
+        return { avatarStudent, subjectCode, subjectName, credit, time, group, teacher, register, cancel }
     }
     const getRegisterOpenedTransaction = (list) => {
         return list.map(register => {
             let requestOfStudentCurrent = false;
-            for(let i = 0; i <register.transactionList.length; i++) {
+            for (let i = 0; i < register.transactionList.length; i++) {
                 const tran = register.transactionList[i];
-                if(tran.studentRequest === Util.getProfile().id) {
+                if (tran.studentRequest === Util.getProfile().id) {
                     requestOfStudentCurrent = true; break;
                 }
             }
@@ -320,17 +392,13 @@ function ExchangeSubject() {
                         nameSomething={'Thời gian học'}
                         number={2}
                         interface={
-                            <ListBoostrapComponent
-                                columns={['Thứ', 'Ngày bắt đầu', 'Ngày kết thúc', 'Thời gian']}
+                            <ListMuiComponent
+                                columns={columnsTimeTable}
                                 rows={register.subjectGroup.times.length != 0 ? register.subjectGroup.times.map(time => {
                                     return (
-                                        <tr>
-                                            <td>{time.dayOfWeek}</td>
-                                            <td>{time.startDate}</td>
-                                            <td>{time.endDate}</td>
-                                            <td>{time.startTime + " - " + time.endTime}</td>
-                                        </tr>
+                                        createDataTimeTable(time.dayOfWeek, time.startDate, time.endDate, time.startTime + " - " + time.endTime)
                                     )
+
                                 }) : []}
                             />
                         }
@@ -352,23 +420,25 @@ function ExchangeSubject() {
                             removeTransaction(e.target.value, register.subjectGroup.subject.id);
                         }}
                     />))
-    
+
             )
         })
     }
     const rows2 = registerOpenedTransactions.length > 0 ? getRegisterOpenedTransaction(registerOpenedTransactions) : []
     const getAllListRegisterOpenedBySubjectId = (subjectId) => {
-        setOpenProcess(true);
+        setOpenProcessSubject(true);
         RegisterService.getAllRegisterOpenedTransactionBySubjectIdAndNotOfStudentId(subjectId, Util.getProfile().id)
             .then(res => {
-                setOpenProcess(false);
+                setOpenProcessSubject(false);
                 setRegisterOpenedTransactions(res.data)
             })
-            .catch(err => { alert("get register error"); setOpenProcess(false) })
+            .catch(err => { alert("get register error"); setOpenProcessSubject(false) })
     }
 
-    if(openSpinner) {
-        return <Spinner/>
+
+
+    if (openSpinner) {
+        return <Spinner />
     }
 
     return (
@@ -377,61 +447,82 @@ function ExchangeSubject() {
                 marginTop: '50px'
             }}>
 
-            {majorRegister != null && majorRegister.seasonDTO != null ? (
-                <div>
-                    <div className="form-group mb-3">
-                        <label className="form-label">
-                            Tên chuyên ngành:
-                        </label>
-                        <input
-                            type="text"
-                            className="form-control"
-                            value={major != null ? major.name : ''}
-                            disabled
-                        />
+            <div>
+                <div className='row'>
+                    <h4 style={{ color: 'red' }}>Khi đăng ký môn học lại/cải thiện của kỳ phụ cần đăng ký đúng môn đã đăng ký nguyện vọng và được duyệt trước đó.</h4>
+                    <h4 style={{ color: 'black' }}>Thời gian trao đổi: {majorRegister != null && majorRegister.eventRegisterResponse != null ? majorRegister.eventRegisterResponse.formatStart + ' đến ' + majorRegister.eventRegisterResponse.formatEnd : 'Chưa có thời gian'}.</h4>
+                    <div className='col-6'>
+                        <div className="form-group mb-3">
+                            <label className="form-label">
+                                Tên ngành:
+                            </label>
+                            <input
+                                type="text"
+                                className="form-control"
+                                value={major != null ? major.name : ''}
+                                disabled
+                            />
+                        </div>
                     </div>
+                    <div className='col-6'>
+                        <div className="form-group mb-3">
+                            <label className="form-label">
+                                Học kỳ:
+                            </label>
+                            <input
+                                type="text"
+                                className="form-control"
+                                value={Semester.MAIN_SEMESTER}
+                                disabled
+                            />
+                        </div>
+                    </div>
+                </div>
 
-                    <div className="form-group mb-3">
-                        <label className="form-label">
-                            Mùa học:
-                        </label>
-                        <input
-                            type="text"
-                            className="form-control"
-                            value={majorRegister != null && majorRegister.seasonDTO != null ? majorRegister.seasonDTO.nameSeason : ''}
-                            disabled
+
+                <div className="form-group mb-3">
+                    {seasons.length > 0 ? <div>
+                        <SelectMuiComponent
+                            title="Chọn mùa học"
+                            type={"SEASON"}
+                            data={seasons}
+                            width={'100%'}
+                            defaultValue={seasons[0].id}
+                            function={(e) => getMajorRegisterBySeasonIdAndStudentId(e.target.value, Util.getProfile().id)}
                         />
+                        {openProcessMajorRegister && <Process />}
                     </div>
+                        : ''}
+                </div>
+                {majorRegister != null && majorRegister.openRegister ? (<div>
                     <div className="form-group mb-3">
                         <SelectMuiComponent
                             title="Chọn môn học"
                             type={"SUBJECT"}
                             data={majorRegister != null && majorRegister.subjectDTOS != null ? majorRegister.subjectDTOS : []}
                             width={'100%'}
-                            function={(e) => { getAllListRegisterOpenedBySubjectId(e.target.value) }}
+                            function={(e) => getAllListRegisterOpenedBySubjectId(e.target.value)}
                         />
+                        {openProcessSubject && <Process />}
                     </div>
+                </div>) :
+                    ''}
+                {majorRegister != null && majorRegister.openRegister && <div className='form-group mb-3'>
                     <ListMuiComponent
                         title="Môn học đã được đăng ký"
                         columns={columns1}
                         rows={rows1}
                     />
-                    <br />
-                    <ListMuiComponent
-                        title="Các môn học đang được trao đổi"
-                        columns={columns2}
-                        rows={rows2}
-                    />
-                    {openProcess && <Process/>}
-                </div>
-            ) : (<div className="form-group mb-3">
-                <input
-                    type="text"
-                    className="form-control text-center"
-                    value={"Thời gian đăng ký chưa có!"}
-                    disabled
+                </div>}
+
+                <ListMuiComponent
+                    title="Các môn học đang được trao đổi"
+                    columns={columns2}
+                    rows={rows2}
                 />
-            </div>)}
+                {openProcess && <Process />}
+            </div>
+
         </div >
     )
 

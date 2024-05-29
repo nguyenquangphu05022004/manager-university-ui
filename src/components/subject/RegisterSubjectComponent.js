@@ -43,6 +43,7 @@ function RegisterSubjectComponent() {
     console.log(seasons)
     const getSeason = () => {
         setSeasons([])
+        setMajorRegister([])
         SeasonService.getAllByCoursesId(Util.getProfile().courses.id)
             .then(res => {
                 setSeasons(res.data)
@@ -53,6 +54,7 @@ function RegisterSubjectComponent() {
             })
             .catch(() => {
                 setSeasons([])
+        setMajorRegister([])
             })
     }
     const getMajorRegisterBySeasonIdAndStudentId = (seaId, studentId) => {
@@ -311,6 +313,7 @@ function RegisterSubjectComponent() {
 
     const getSeasonExtra = () => {
         setSeasons([])
+        setMajorRegister([])
         SeasonService.getListSeasonExtraByStudent(Util.getProfile().id)
             .then(res => {
                 setSeasons(res.data);
@@ -319,7 +322,8 @@ function RegisterSubjectComponent() {
                     getMajorRegisterBySeasonIdAndStudentId(res.data[0].id, Util.getProfile().id)
                 }
             }).catch(err => {
-                console.log(err)
+               setSeasons([])
+        setMajorRegister([])
             })
     }
     const handleSelectSemester = (e) => {
@@ -348,7 +352,7 @@ function RegisterSubjectComponent() {
                     <h4 style={{ color: 'red' }}>Khi đăng ký môn học lại/cải thiện của kỳ phụ cần đăng ký đúng môn đã đăng ký nguyện vọng và được duyệt trước đó.</h4>
                     <h4 style={{ color: 'black' }}>Thời gian đăng ký: {majorRegister != null && majorRegister.eventRegisterResponse != null ? majorRegister.eventRegisterResponse.formatStart + ' đến ' + majorRegister.eventRegisterResponse.formatEnd : 'Chưa có thời gian' }.</h4>
                     <label className="form-label">
-                        Tên chuyên ngành:
+                        Tên ngành:
                     </label>
                     <input
                         type="text"

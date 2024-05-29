@@ -245,14 +245,13 @@ function FullCalendarComponent() {
           }
           eventContent={renderEventContent}
           headerToolbar={{
-            left: 'next',
+            left: 'today',
             center: 'title',
-            right: 'today'
+            right: 'next'
           }}
           buttonText={
             {
               today: 'Hôm nay',
-              next: 'Tuần sau'
 
             }
           }

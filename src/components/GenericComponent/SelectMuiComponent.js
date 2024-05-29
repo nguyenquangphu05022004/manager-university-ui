@@ -1,4 +1,5 @@
 import { Box, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
+import Semester from "../../constant/Semester";
 
 
 function SelectMuiComponent(param) {
@@ -47,7 +48,7 @@ function SelectMuiComponent(param) {
             )
         })
     } else if (param.type === 'SEASON') {
-        if(param.choice === 'FULL') {
+        if (param.choice === 'FULL') {
             seasonItem = param.data.map(season => {
                 return (
                     <MenuItem
@@ -60,18 +61,18 @@ function SelectMuiComponent(param) {
             })
         }
         else {
-             
-                seasonItem = param.data.map(season => {
-                    return (
-                        <MenuItem
-                            value={season.id}
-                            key={season.id}
-                        >
-                            {season.nameSeason}
-                        </MenuItem>
-                    )
-                })
-            
+
+            seasonItem = param.data.map(season => {
+                return (
+                    <MenuItem
+                        value={season.id}
+                        key={season.id}
+                    >
+                        {season.nameSeason}
+                    </MenuItem>
+                )
+            })
+
         }
     } else if (param.type === "SUBJECT") {
         subjectItem = param.data.map(subject => {
@@ -99,12 +100,12 @@ function SelectMuiComponent(param) {
         const data = [<MenuItem
             value={1}
         >
-            {'Học kỳ chính'}
-        </MenuItem>,  <MenuItem
-                    value={2}
-                >
-                    {'Học kỳ phụ'}
-                </MenuItem>]
+            {Semester.MAIN_SEMESTER}
+        </MenuItem>, <MenuItem
+            value={2}
+        >
+            {Semester.EXTRA_SEMESTER}
+        </MenuItem>]
         seasonExtra = data.map(d => d);
     }
 

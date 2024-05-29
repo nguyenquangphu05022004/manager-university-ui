@@ -10,7 +10,6 @@ import SeasonService from '../../services/SeasonService';
 import SelectMuiComponent from '../GenericComponent/SelectMuiComponent';
 import Process from '../GenericComponent/Process';
 
-
 function AspirationRegisterSubjectComponent() {
     const [subjects, setSubjects] = useState([])
     const [studentCode, setStudentCode] = useState('')
@@ -19,12 +18,14 @@ function AspirationRegisterSubjectComponent() {
     const [seasons, setSeasons] = useState([])
     const [openSpinner, setOpenSpinner] = useState(true)
     const [openProcessAspi, setOpenProcessAspi] = useState(false);
+    const [seasonId, setSeasonId] = useState('')
     document.title = "Đăng ký nguyện vọng"
     useEffect(() => {
         SeasonService.getAllSeasonExtra()
             .then(res => {
                 setSeasons(res.data);
                 if (res.data.length > 0) {
+                    setSeasonId(res.data[0].id)
                     setOpenProcessAspi(true)
                     AspirationOfStudentService.getListAspirationBySeasonIdAndStudentId(res.data[0].id, Util.getProfile().id)
                         .then(res => {
@@ -43,11 +44,23 @@ function AspirationRegisterSubjectComponent() {
             .then(res => setSubjects(res.data))
     }, [])
 
+    const getAllAspirationOfStudentBySeason = (seasonId) => {
+        setSeasonId(seasonId)
+        setOpenProcessAspi(true)
+        AspirationOfStudentService.getListAspirationBySeasonIdAndStudentId(seasonId, Util.getProfile().id)
+            .then(res => {
+                setOpenProcessAspi(false)
+                setAspirations(res.data);
+            }).catch(err => {
+                setOpenProcessAspi(false)
+            })
+    }
 
     const handleRegisterAspiration = () => {
         const aspirationRequest = {
             "studentCode": studentCode,
-            "subjectCode": subjectCode
+            "subjectCode": subjectCode,
+            "seasonId": seasonId
         }
         AspirationOfStudentService.createAspiration(aspirationRequest)
             .then(() => {
@@ -61,7 +74,6 @@ function AspirationRegisterSubjectComponent() {
     }
 
     const columns1 = [
-    
         { id: 'subjectCode', label: 'Mã môn học', align: 'center', minWidth: 170 },
         { id: 'subjectName', label: 'Tên môn học', align: 'center', minWidth: 170 },
         {
@@ -71,7 +83,6 @@ function AspirationRegisterSubjectComponent() {
             align: 'center',
             format: (value) => value.toLocaleString('en-US'),
         },
-        
     ];
     const createDataSubject = (subjectCode, subjectName, credit) => {
         return { subjectCode, subjectName, credit }
@@ -88,7 +99,7 @@ function AspirationRegisterSubjectComponent() {
 
     const colAspiration = [
         { id: 'seasonExtra', label: 'Học kỳ phụ', align: 'center', minWidth: 170 },
-    
+
         { id: 'subjectCode', label: 'Mã môn học', align: 'center', minWidth: 170 },
         { id: 'subjectName', label: 'Tên môn học', align: 'center', minWidth: 170 },
         {
@@ -104,14 +115,14 @@ function AspirationRegisterSubjectComponent() {
             minWidth: 120,
             align: 'center',
         }
-        
+
     ];
     const createDataAspiration = (seasonExtra, subjectCode, subjectName, credit, status) => {
-        return {seasonExtra, subjectCode, subjectName, credit, status}
+        return { seasonExtra, subjectCode, subjectName, credit, status }
     }
     const rowAspiration = aspirations.length > 0 ? aspirations.map(aspiration => {
-        return createDataAspiration(aspiration.season.nameSeason,aspiration.subject.subjectCode, aspiration.subject.subjectName,
-            aspiration.subject.credit, aspiration.approval ? <h6 style={{color:'green'}}>Đã được duyệt để mở lớp</h6> :  <h6 style={{color:'red'}}>Chưa được duyệt để mở lớp</h6>)
+        return createDataAspiration(aspiration.season.nameSeason, aspiration.subject.subjectCode, aspiration.subject.subjectName,
+            aspiration.subject.credit, aspiration.approval ? <h6 style={{ color: 'green' }}>Đã được duyệt để mở lớp</h6> : <h6 style={{ color: 'red' }}>Chưa được duyệt để mở lớp</h6>)
     }) : []
     if (openSpinner) {
         return <Spinner />
@@ -124,7 +135,7 @@ function AspirationRegisterSubjectComponent() {
             style={{
                 marginTop: '50px'
             }}>
-            <div className='form-group mb-3'> 
+            <div className='form-group mb-3'>
                 <DialogMuiComponent
                     nameAction="Xem danh sách môn học"
                     nameSomething={'Môn học'}
@@ -144,7 +155,7 @@ function AspirationRegisterSubjectComponent() {
                     data={seasons}
                     width={'100%'}
                     defaultValue={seasons[0].id}
-                    function={(e) => {}}
+                    function={(e) => { getAllAspirationOfStudentBySeason(e.target.value) }}
                 />
             </div>
             <div className="form-group mb-3">
@@ -172,7 +183,7 @@ function AspirationRegisterSubjectComponent() {
             </div>
             <div className="form-group mb-3">
                 <div className='mb-3'>
-                    {openProcessAspi && <Process/>}
+                    {openProcessAspi && <Process />}
                 </div>
                 <ListMuiComponent
                     title={"Nguyện vọng đã đăng ký"}

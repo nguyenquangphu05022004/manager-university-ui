@@ -6,11 +6,6 @@ function Admin() {
     document.title = "Quản trị"
     return (
         <div>
-            <br/>
-            <Button variant="contained" component={Link} to={"/admin/courses"}>Năm học</Button>
-            <br />
-            <br />
-            <Button variant="contained" component={Link} to={"/admin/subject/major"}>Đăng ký môn học cho chuyên ngành theo năm học</Button>
             <br />
             <br />
             <Button variant="contained" component={Link} to={"/admin/majors"}>Chuyên ngành</Button>
