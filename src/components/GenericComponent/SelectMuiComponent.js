@@ -11,6 +11,7 @@ function SelectMuiComponent(param) {
     let subjectItem = null;
     let roomClassesItem = null;
     let seasonExtra = null;
+    let aspirationRegister = null;
     if (param.type === "SEMESTER") {
         semesterItem = param.data.map(dt => {
             return (
@@ -107,6 +108,17 @@ function SelectMuiComponent(param) {
             {Semester.EXTRA_SEMESTER}
         </MenuItem>]
         seasonExtra = data.map(d => d);
+    } else if(param.type === 'ASPIRATION-REGISTER') {
+        aspirationRegister = param.data.map((aspirationRegister, index) => {
+            return (
+                <MenuItem
+                    value={index}
+                    key={index}
+                >
+                    {aspirationRegister.season.nameSeason}
+                </MenuItem>
+            )
+        })
     }
 
 
@@ -129,6 +141,7 @@ function SelectMuiComponent(param) {
                     {subjectItem != null && subjectItem}
                     {roomClassesItem != null && roomClassesItem}
                     {seasonExtra != null && seasonExtra}
+                    {aspirationRegister != null && aspirationRegister}
                 </Select>
             </FormControl>
         </Box>

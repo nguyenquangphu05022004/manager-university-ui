@@ -33,7 +33,9 @@ function Admin() {
             <br/>
             <br/>
             <Button variant="contained" component={Link} to={"/admin/seasons"}>Mùa học</Button>
-    
+            <br/>
+            <br/>
+            <Button variant="contained" component={Link} to={"/admin/aspirationRegisters"}>Nguyện vọng đăng ký môn</Button>
         </div>
     )
 }

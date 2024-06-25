@@ -10,7 +10,9 @@ import ListMuiComponent from '../GenericComponent/ListMuiComponent';
 import Spinner from '../GenericComponent/Spinner'
 import Process from '../GenericComponent/Process'
 import SeasonService from '../../services/SeasonService';
-import {  Checkbox } from "@mui/material";
+import { Checkbox } from "@mui/material";
+import Tooltip from '@mui/material/Tooltip';
+
 var seasonId = null;
 function RegisterSubjectComponent() {
 
@@ -31,7 +33,7 @@ function RegisterSubjectComponent() {
                 setSeasons(res.data)
                 if (res.data.length > 0) {
                     seasonId = res.data[0].id
-                    getMajorRegisterBySeasonIdAndStudentId(res.data[0].id, Util.getProfile().id)
+                    getMajorRegisterBySeasonIdAndStudentId(res.data[0].id, Util.getProfile().id, true)
                 }
             })
             .catch(() => {
@@ -49,16 +51,19 @@ function RegisterSubjectComponent() {
                 setSeasons(res.data)
                 if (res.data.length > 0) {
                     seasonId = res.data[0].id
-                    getMajorRegisterBySeasonIdAndStudentId(res.data[0].id, Util.getProfile().id)
+                    getMajorRegisterBySeasonIdAndStudentId(res.data[0].id, Util.getProfile().id, true)
                 }
             })
             .catch(() => {
                 setSeasons([])
-        setMajorRegister([])
+                setMajorRegister([])
             })
     }
-    const getMajorRegisterBySeasonIdAndStudentId = (seaId, studentId) => {
+    const getMajorRegisterBySeasonIdAndStudentId = (seaId, studentId, notRemoveSubjectGroup) => {
         setOpenProcessMajorRegister(true)
+        if(!notRemoveSubjectGroup) {
+            setSubjectGroups([])
+        }
         MajorRegisterService.getBySeasonIdAndStudentId(seaId, studentId)
             .then(res => {
                 seasonId = seaId;
@@ -99,7 +104,7 @@ function RegisterSubjectComponent() {
         }
         RegisterSubjectService.registerSubject(requestData)
             .then(() => {
-                getMajorRegisterBySeasonIdAndStudentId(seasonId, Util.getProfile().id)
+                getMajorRegisterBySeasonIdAndStudentId(seasonId, Util.getProfile().id, true)
             }).catch((err) => {
                 console.log(err)
             })
@@ -130,9 +135,9 @@ function RegisterSubjectComponent() {
         }
     ];
     const createDataTime = (day, start, end, time) => {
-        return {day, start, end, time};
+        return { day, start, end, time };
     }
-    
+
     const columns1 = [
         { id: 'subjectCode', label: 'Mã môn học', align: 'center', minWidth: 170 },
         { id: 'subjectName', label: 'Tên môn học', align: 'center', minWidth: 170 },
@@ -200,15 +205,19 @@ function RegisterSubjectComponent() {
                             />
                         }
                     />), subjectGroup.groupName, subjectGroup.numberOfStudent + '/' + subjectGroup.numberOfStudentCurrent, (subjectGroup.teacher != null ? subjectGroup.teacher.fullName : ''),
-                    (<Checkbox
-                        sx={{ '& .MuiSvgIcon-root': { fontSize: 28 } }}
-                        value={subjectGroup.id}
-                        disabled={cookieSubject != null && cookieSubject.includes(subjectGroup.subject.id + '') || subjectGroup.numberOfStudent === subjectGroup.numberOfStudentCurrent}
-                        checked={cookiesSubjectGroup != null && cookiesSubjectGroup.includes(subjectGroup.id + '')}
-                        onClick={(e) => {
-                            registerSubject(e.target.value);
-                        }}
-                    />))
+                    (
+                        // <Tooltip title="Delete">
+                            <Checkbox
+                                sx={{ '& .MuiSvgIcon-root': { fontSize: 28 } }}
+                                value={subjectGroup.id}
+                                disabled={majorRegister != null && majorRegister.openRegister ? cookieSubject != null && cookieSubject.includes(subjectGroup.subject.id + '') || subjectGroup.numberOfStudent === subjectGroup.numberOfStudentCurrent : true}
+                                checked={cookiesSubjectGroup != null && cookiesSubjectGroup.includes(subjectGroup.id + '')}
+                                onClick={(e) => {
+                                    registerSubject(e.target.value);
+                                }}
+                        />
+                        //  </Tooltip>
+                         ))
             )
         })
     }
@@ -258,10 +267,9 @@ function RegisterSubjectComponent() {
     const deleteRegister = (registerId) => {
         RegisterSubjectService.deleteRegister(registerId)
             .then(() => {
-                getMajorRegisterBySeasonIdAndStudentId(seasonId, Util.getProfile().id)
-
+                getMajorRegisterBySeasonIdAndStudentId(seasonId, Util.getProfile().id, true)
             }).catch(err => {
-                alert("you catch error when delete register")
+                alert("Thời hạn đăng ký đã hết bạn không thể xóa môn học, hoặc server đang xảy ra lỗi")
             })
 
     }
@@ -300,6 +308,7 @@ function RegisterSubjectComponent() {
                     <Checkbox
                         sx={{ '& .MuiSvgIcon-root': { fontSize: 28 } }}
                         value={register.id}
+                        disabled={majorRegister != null && !majorRegister.openRegister}
                         onClick={(e) => {
                             deleteRegister(e.target.value);
                         }}
@@ -319,11 +328,11 @@ function RegisterSubjectComponent() {
                 setSeasons(res.data);
                 if (res.data.length > 0) {
                     seasonId = res.data[0].id
-                    getMajorRegisterBySeasonIdAndStudentId(res.data[0].id, Util.getProfile().id)
+                    getMajorRegisterBySeasonIdAndStudentId(res.data[0].id, Util.getProfile().id, true)
                 }
             }).catch(err => {
-               setSeasons([])
-        setMajorRegister([])
+                setSeasons([])
+                setMajorRegister([])
             })
     }
     const handleSelectSemester = (e) => {
@@ -339,7 +348,7 @@ function RegisterSubjectComponent() {
             <Spinner />
         )
     }
-    console.log('MajorRegister: ',majorRegister)
+    console.log('MajorRegister: ', majorRegister)
     return (
         <div className='container'
             style={{
@@ -350,7 +359,7 @@ function RegisterSubjectComponent() {
 
                 <div className="form-group mb-3">
                     <h4 style={{ color: 'red' }}>Khi đăng ký môn học lại/cải thiện của kỳ phụ cần đăng ký đúng môn đã đăng ký nguyện vọng và được duyệt trước đó.</h4>
-                    <h4 style={{ color: 'black' }}>Thời gian đăng ký: {majorRegister != null && majorRegister.eventRegisterResponse != null ? majorRegister.eventRegisterResponse.formatStart + ' đến ' + majorRegister.eventRegisterResponse.formatEnd : 'Chưa có thời gian' }.</h4>
+                    <h4 style={{ color: 'black' }}>Thời gian đăng ký: {majorRegister != null && majorRegister.eventRegisterResponse != null ? majorRegister.eventRegisterResponse.formatStart + ' đến ' + majorRegister.eventRegisterResponse.formatEnd : 'Chưa có thời gian'}.</h4>
                     <label className="form-label">
                         Tên ngành:
                     </label>
@@ -365,7 +374,7 @@ function RegisterSubjectComponent() {
                     <SelectMuiComponent
                         title="Chọn học kỳ"
                         type={"SEASON_EXTRA"}
-                 
+
                         width={'100%'}
                         defaultValue={1}
                         function={handleSelectSemester}
@@ -379,13 +388,13 @@ function RegisterSubjectComponent() {
                             data={seasons}
                             width={'100%'}
                             defaultValue={seasons[0].id}
-                            function={(e) => getMajorRegisterBySeasonIdAndStudentId(e.target.value, Util.getProfile().id)}
+                            function={(e) => getMajorRegisterBySeasonIdAndStudentId(e.target.value, Util.getProfile().id, true)}
                         />
                         {openProcessMajorRegister && <Process />}
                     </div>
                         : ''}
                 </div>
-                {majorRegister != null && majorRegister.openRegister ? (<div>
+                <div>
                     <div className="form-group mb-3">
                         <SelectMuiComponent
                             title="Chọn môn học"
@@ -403,8 +412,7 @@ function RegisterSubjectComponent() {
                             rows={rows1}
                         />
                     </div>
-                </div>) :
-                    ''}
+                </div>
                 <div className="form-group mb-3">
                     <ListMuiComponent
                         title="Đăng ký thành công"

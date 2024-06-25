@@ -35,7 +35,9 @@ class MajorRegisterService {
     }
     handleOpenRegister(majorRegisterId, openRegister) {
       return Request.requests('put', SystemConstant.BASE_REST_API_URL, `/majorRegisters/${majorRegisterId}/openRegister?openRegister=${openRegister}`, '')
-
+    }
+    updateSubject(majorRegisterId, subjectId, actionType)  {
+      return Request.requests('put', SystemConstant.BASE_REST_API_URL, `/majorRegisters/${majorRegisterId}/subject/${subjectId}?actionType=${actionType}`, '')
     }
 }
 export default new MajorRegisterService();

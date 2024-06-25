@@ -6,34 +6,28 @@ import ListMuiComponent from '../GenericComponent/ListMuiComponent';
 import Spinner from '../GenericComponent/Spinner'
 
 import Util from '../../utils/Util';
-import SeasonService from '../../services/SeasonService';
 import SelectMuiComponent from '../GenericComponent/SelectMuiComponent';
 import Process from '../GenericComponent/Process';
+import AspirationRegisterService from '../../services/AspirationRegisterService';
 
 function AspirationRegisterSubjectComponent() {
     const [subjects, setSubjects] = useState([])
-    const [studentCode, setStudentCode] = useState('')
     const [subjectCode, setSubjectCode] = useState('')
     const [aspirations, setAspirations] = useState([])
-    const [seasons, setSeasons] = useState([])
     const [openSpinner, setOpenSpinner] = useState(true)
     const [openProcessAspi, setOpenProcessAspi] = useState(false);
-    const [seasonId, setSeasonId] = useState('')
+    const [aspirationRegisters, setAspirationRegisters] = useState([])
+    const [aspirationRegistersIndex, setAspirationRegistersIndex] = useState(0)
     document.title = "Đăng ký nguyện vọng"
     useEffect(() => {
-        SeasonService.getAllSeasonExtra()
+        AspirationRegisterService.getListAspirationRegisters()
             .then(res => {
-                setSeasons(res.data);
-                if (res.data.length > 0) {
-                    setSeasonId(res.data[0].id)
-                    setOpenProcessAspi(true)
-                    AspirationOfStudentService.getListAspirationBySeasonIdAndStudentId(res.data[0].id, Util.getProfile().id)
-                        .then(res => {
-                            setOpenProcessAspi(false)
-                            setAspirations(res.data);
-                        }).catch(err => {
-                            setOpenProcessAspi(false)
-                        })
+                console.log("aspiration: ",res.data)
+                setAspirationRegisters(res.data);
+                if(res.data.length > 0) {
+                    AspirationOfStudentService.getListByAspirationRegisterIdAndStudentId(res.data[0].id, Util.getProfile().id)
+                    .then(response => setAspirations(response.data))
+                    .catch(err => console.log(err))
                 }
                 setOpenSpinner(false)
             }).catch(err => {
@@ -43,11 +37,10 @@ function AspirationRegisterSubjectComponent() {
         SubjectService.getAllSubjects()
             .then(res => setSubjects(res.data))
     }, [])
-
-    const getAllAspirationOfStudentBySeason = (seasonId) => {
-        setSeasonId(seasonId)
+    const getAllAspirationOfStudentByAspirationRegister = (aspirationRegistersIndex) => {
+        setAspirationRegistersIndex(aspirationRegistersIndex)
         setOpenProcessAspi(true)
-        AspirationOfStudentService.getListAspirationBySeasonIdAndStudentId(seasonId, Util.getProfile().id)
+        AspirationOfStudentService.getListByAspirationRegisterIdAndStudentId(aspirationRegisters[aspirationRegistersIndex].id, Util.getProfile().id)
             .then(res => {
                 setOpenProcessAspi(false)
                 setAspirations(res.data);
@@ -58,18 +51,14 @@ function AspirationRegisterSubjectComponent() {
 
     const handleRegisterAspiration = () => {
         const aspirationRequest = {
-            "studentCode": studentCode,
             "subjectCode": subjectCode,
-            "seasonId": seasonId
+            "aspirationRegisterId": aspirationRegisters[aspirationRegistersIndex].id
         }
         AspirationOfStudentService.createAspiration(aspirationRequest)
             .then(() => {
-                AspirationOfStudentService.getListAspirationOfStudent(Util.getProfile().id)
-                    .then(res => {
-                        setAspirations(res.data)
-                    })
+                getAllAspirationOfStudentByAspirationRegister(aspirationRegistersIndex)
             }).catch(() => {
-                alert("Mã sinh viên hoặc mã môn không hợp lệ!!!")
+                alert("Mã môn không hợp lệ hoặc bạn đã đăng ký nguyện vọng!!!")
             })
     }
 
@@ -121,15 +110,12 @@ function AspirationRegisterSubjectComponent() {
         return { seasonExtra, subjectCode, subjectName, credit, status }
     }
     const rowAspiration = aspirations.length > 0 ? aspirations.map(aspiration => {
-        return createDataAspiration(aspiration.season.nameSeason, aspiration.subject.subjectCode, aspiration.subject.subjectName,
+        return createDataAspiration(aspiration.aspirationRegister.season.nameSeason, aspiration.subject.subjectCode, aspiration.subject.subjectName,
             aspiration.subject.credit, aspiration.approval ? <h6 style={{ color: 'green' }}>Đã được duyệt để mở lớp</h6> : <h6 style={{ color: 'red' }}>Chưa được duyệt để mở lớp</h6>)
     }) : []
     if (openSpinner) {
         return <Spinner />
     }
-
-    console.log(aspirations)
-
     return (
         <div className='container'
             style={{
@@ -148,27 +134,19 @@ function AspirationRegisterSubjectComponent() {
                     }
                 />
             </div>
+            <h4 className='mb-4' style={{ color: 'black' }}>Thời gian đăng ký: { aspirationRegisters[aspirationRegistersIndex].openRegister ? aspirationRegisters[aspirationRegistersIndex].formatStart + ' đến ' + aspirationRegisters[aspirationRegistersIndex].formatEnd : 'Chưa có thời gian'}.</h4>
             <div className='form-group mb-3'>
                 <SelectMuiComponent
                     title="Chọn mùa học"
-                    type={"SEASON"}
-                    data={seasons}
+                    type={"ASPIRATION-REGISTER"}
+                    data={aspirationRegisters}
                     width={'100%'}
-                    defaultValue={seasons[0].id}
-                    function={(e) => { getAllAspirationOfStudentBySeason(e.target.value) }}
+                    defaultValue={0}
+                    function={(e) => { getAllAspirationOfStudentByAspirationRegister(e.target.value) }}
                 />
             </div>
-            <div className="form-group mb-3">
-                <label className="form-label">
-                    Mã sinh viên:
-                </label>
-                <input
-                    type="text"
-                    className="form-control"
-                    onChange={(e) => setStudentCode(e.target.value)}
-                />
-            </div>
-            <div className="form-group mb-3">
+            {aspirationRegisters[aspirationRegistersIndex].openRegister ? (<div>
+                <div className="form-group mb-3">
                 <label className="form-label">
                     Mã môn học:
                 </label>
@@ -181,6 +159,7 @@ function AspirationRegisterSubjectComponent() {
             <div className="form-group mb-3">
                 <button className='btn btn-primary w-100' onClick={handleRegisterAspiration}>Đăng ký nguyện vọng</button>
             </div>
+            </div>) : ''}
             <div className="form-group mb-3">
                 <div className='mb-3'>
                     {openProcessAspi && <Process />}

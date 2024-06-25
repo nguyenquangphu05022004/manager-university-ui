@@ -40,32 +40,20 @@ const pages = Token.info == null ? [] : Token.info.role === Role.TEACHER ? (teac
     link: "/dang-ky-mon-hoc"
   },
   {
-    page: "Trao đổi môn học",
-    link: "/trao-doi-mon-hoc"
-  },
-  {
     page: "Thời khóa biểu",
     link: "/thoi-khoa-bieu"
   },
   {
-    page: "Xem học phí",
+    page: "Học phí",
     link: "/xem-hoc-phi"
   },
   {
-    page: "Xem điểm",
+    page: "Điểm thi",
     link: "/xem-diem"
   },
   {
-    page: "Xem lịch thi",
+    page: "Lịch thi",
     link: "/xem-lich-thi"
-  },
-  {
-    page: "Chương trình đào tạo",
-    link: "/chuong-trinh-dao-tao"
-  },
-  {
-    page: "Đăng ký nguyện vọng",
-    link: "/dang-ky-nguyen-vong"
   }
 ]);
 const settings = Token.info != null && Token.info.role === Role.ADMIN ? ([
@@ -85,6 +73,18 @@ const settings = Token.info != null && Token.info.role === Role.ADMIN ? ([
   {
     name: "Thông tin cá nhân",
     link: "/profile"
+  },
+  {
+    name: "Trao đổi môn học",
+    link: "/trao-doi-mon-hoc"
+  },
+  {
+    name: "Đăng ký nguyện vọng",
+    link: "/dang-ky-nguyen-vong"
+  },
+  {
+    name: "Chương trình đào tạo",
+    link: "/chuong-trinh-dao-tao"
   },
   {
     name: "Đổi mật khẩu",
@@ -226,7 +226,7 @@ function HeaderComponent() {
             {pages.map((page, index) => (
               <Button
                 onClick={handleCloseNavMenu}
-                sx={{ my: 1, color: 'white', display: 'block-inline' }}
+                sx={{ my: 1, color: 'white', display: 'block-inline', fontSize:'15px' }}
                 component={Link}
                 to={page.link}
                 key={index}

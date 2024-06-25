@@ -36,6 +36,7 @@ import AspirationRegisterSubjectComponent from './components/aspirationRegisterS
 import AdminRegisterSubjectComponent from './components/subject/AdminRegisterSubjectComponent';
 import AdminManagerSubject from './components/AdminManagerSubject';
 import SeasonComponent from './components/season/SeasonComponent';
+import ListAspirationRegisterComponent from './components/aspirationRegisterSubject/ListAspirationRegisterComponent'
 function App() {
     return (
         <div>
@@ -81,6 +82,7 @@ function App() {
                         <Route path="/dang-ky-nguyen-vong" element={<AspirationRegisterSubjectComponent/>}/>
                         <Route path="/admin/manager-subject" element={<AdminManagerSubject/>}/>
                         <Route path="/admin/seasons" element={<SeasonComponent/>}/>
+                        <Route path='/admin/aspirationRegisters' element={<ListAspirationRegisterComponent/>}/>
 
                     </Routes>
                 </div>

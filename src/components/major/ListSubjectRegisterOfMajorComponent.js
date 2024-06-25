@@ -18,7 +18,7 @@ function ListSubjectRegisterOfMajorComponent() {
     const [courseId, setCourseId]   = useState('');
     useEffect(() => {
         getMajors();
-    }, [])
+    }, [])  
 
     const getMajors = () => {
         MajorService.getAllMajors()

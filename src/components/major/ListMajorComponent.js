@@ -5,25 +5,41 @@ import MajorService from '../../services/MajorService';
 import ListBoostrapComponent from '../GenericComponent/ListBoostrapComponent';
 import DialogMuiComponent from '../GenericComponent/DialogMuiComponent'
 import RegisterSubjectForMajorComponent from '../major/RegisterSubjectForMajorComponent';
+import SubjectService from '../../services/SubjectService';
+import SelectMuiComponent from '../GenericComponent/SelectMuiComponent';
+import MajorRegisterService from '../../services/MajorRegisterService';
 
 const ListMajorComponent = () => {
     const [majors, setMajors] = useState([]);
     const [check, setCheck] = useState(true);
     const [ids, setIds] = useState([]);
-
-
+    const [subjects, setSubjects] = useState([])
+    const [subjectId, setSubjectId] = useState('')
 
     const getAllMajor = () => {
         MajorService.getAllMajors().then(res => {
             setMajors(res.data);
-        }).catch(err => { console.error(err); });
+        }).catch((err) => console.log(err))
     }
 
     useEffect(() => {
         getAllMajor();
+        SubjectService.getAllSubjects()
+            .then(res => setSubjects(res.data))
     }, [])
 
-    console.log(majors)
+    const updateSubject = (majorRegisterId, subjectId, actionType) => {
+        MajorRegisterService.updateSubject(majorRegisterId, subjectId, actionType)
+            .then(() => {
+               if(actionType) {
+                 alert("Add successfully")
+               } else {
+                alert("Delete successfully")
+               }
+                window.location.reload();
+            })
+            .catch(err => console.log(err))
+    }
 
     const handleDelete = (ids) => {
         MajorService.deleteMajor(ids).then(() => {
@@ -82,28 +98,51 @@ const ListMajorComponent = () => {
                                         <tr>
                                             <td>{majorRegister.seasonDTO.fullNameSeason}</td>
                                             <td>
-                                                    <DialogMuiComponent
-                                                        nameAction="Xem chi tiết"
-                                                        number={4}
-                                                        nameSomething={majorRegister.seasonDTO.fullNameSeason + ' ngành ' + major.name}
-                                                        interface={
-                                                          <ListBoostrapComponent
-                                                                columns={['Mã môn học','Tên môn học', 'Số tín chỉ']}
-                                                                rows={majorRegister.subjectDTOS.length > 0 ? 
-                                                                    majorRegister.subjectDTOS.map((subject) => {
-                                                                        return (
-                                                                            <tr>
-                                                                                <td>{subject.subjectCode}</td>
-                                                                                <td>{subject.subjectName}</td>
-                                                                                <td>{subject.credit}</td>
-
-                                                                            </tr>
-                                                                        )
-                                                                    })
-                                                                    : []}
-                                                          />  
-                                                        }
-                                                    />
+                                                <DialogMuiComponent
+                                                    nameAction="Xem chi tiết"
+                                                    number={4}
+                                                    nameSomething={<div>
+                                                        <h4>{majorRegister.seasonDTO.fullNameSeason + ' ngành ' + major.name}</h4>
+                                                        <DialogMuiComponent
+                                                            nameAction="Thêm môn học"
+                                                            number={5}
+                                                            nameSomething={'Môn học'}
+                                                            interface={
+                                                                <div className='card'>
+                                                                    <div className=' mb-3'>
+                                                                        <SelectMuiComponent
+                                                                            title="Chọn môn học"
+                                                                            type={"SUBJECT"}
+                                                                            data={subjects}
+                                                                            width={'100%'}
+                                                                            function={(e) => setSubjectId(e.target.value)}
+                                                                        />
+                                                                    </div>
+                                                                    <div className=' mb-3'>
+                                                                        <button className='btn btn-primary w-100' onClick={() => updateSubject(majorRegister.id,subjectId, true)}>Thêm</button>
+                                                                    </div>
+                                                                </div>
+                                                            }
+                                                        />
+                                                    </div>}
+                                                    interface={
+                                                        <ListBoostrapComponent
+                                                            columns={['Mã môn học', 'Tên môn học', 'Số tín chỉ', "Xóa môn học"]}
+                                                            rows={majorRegister.subjectDTOS.length > 0 ?
+                                                                majorRegister.subjectDTOS.map((subject) => {
+                                                                    return (
+                                                                        <tr>
+                                                                            <td>{subject.subjectCode}</td>
+                                                                            <td>{subject.subjectName}</td>
+                                                                            <td>{subject.credit}</td>
+                                                                            <td><button className='w-100 btn btn-primary' onClick={() => updateSubject(majorRegister.id,subject.id, false)}>Xóa</button></td>
+                                                                        </tr>
+                                                                    )
+                                                                })
+                                                                : []}
+                                                        />
+                                                    }
+                                                />
                                             </td>
                                         </tr>
                                     )
